@@ -1,3 +1,7 @@
+import { getHelpline } from "../utils/helpline.js";
+
+const h = getHelpline();
+
 export default function Footer() {
   return (
     <footer className="bg-carbon px-[40px] py-[48px]">
@@ -6,17 +10,38 @@ export default function Footer() {
           <p className="text-[11px] font-normal uppercase tracking-widest text-smoke">
             PocketPal
           </p>
-          <div className="max-w-[480px]">
+
+          <div className="max-w-[520px]">
             <p className="text-[12px] font-normal leading-[1.58] text-smoke">
               PocketPal is a journaling and reflection tool — not medical
               advice, a diagnosis, or a crisis service.
             </p>
-            <p className="mt-[16px] text-[12px] font-normal leading-[1.58] text-pewter">
-              If you're in crisis or thinking about harming yourself, real
-              support is available right now. Call or text{" "}
-              <span className="text-smoke">988</span> (Suicide &amp; Crisis
-              Lifeline, US), 24/7. For immediate danger, call 911.
-            </p>
+
+            {/* Location-aware crisis line */}
+            <div className="mt-[28px] border-l border-pewter pl-[16px]">
+              <p className="text-[11px] font-normal uppercase tracking-widest text-pewter">
+                {h.country ? `crisis support — ${h.country}` : "crisis support — worldwide"}
+              </p>
+              <p className="mt-[8px] text-[16px] font-light text-smoke">
+                {h.line}
+              </p>
+              <p className="mt-[4px] text-[12px] font-normal leading-[1.58] text-pewter">
+                {h.label} — {h.extra}
+              </p>
+              {h.country && (
+                <p className="mt-[12px] text-[11px] font-normal leading-[1.5] text-graphite">
+                  If you're in immediate danger, call your local emergency number.
+                  For other countries visit{" "}
+                  <span className="text-pewter">befrienders.org</span>
+                </p>
+              )}
+              {!h.country && (
+                <p className="mt-[12px] text-[11px] font-normal text-graphite">
+                  Find your local helpline at{" "}
+                  <span className="text-pewter">befrienders.org</span>
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
