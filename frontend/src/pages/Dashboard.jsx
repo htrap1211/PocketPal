@@ -12,6 +12,7 @@ import { fetchCheckins, fetchWeeklySummary } from "../api.js";
 import { moodMeta, SENTIMENT_META } from "../constants.js";
 import EscalationBanner from "../components/EscalationBanner.jsx";
 import WeeklyInsight from "../components/WeeklyInsight.jsx";
+import SupportMap from "../components/SupportMap.jsx";
 import HeroOrbs from "../components/HeroOrbs.jsx";
 import { calcStreak } from "../utils/streak.js";
 import { useInView } from "../utils/useInView.js";
@@ -212,6 +213,21 @@ export default function Dashboard() {
                 trend={weekInsight?.trend}
                 loading={weekLoading}
               />
+
+              {/* Support map */}
+              <div className="mb-[64px] sm:mb-[80px] max-w-[900px]">
+                <div className="mb-[24px] sm:mb-[28px] flex items-baseline justify-between gap-[16px]">
+                  <p className="text-[12px] font-normal uppercase tracking-widest text-ash">
+                    {checkins[0]?.mood <= 2
+                      ? "support near you"
+                      : checkins[0]?.mood >= 4
+                      ? "community near you"
+                      : "resources near you"}
+                  </p>
+                  <p className="text-[11px] text-smoke/50 hidden sm:block">tap a pin</p>
+                </div>
+                <SupportMap lastMood={checkins[0]?.mood} />
+              </div>
 
               {/* Past check-ins — scroll-reveal */}
               <div className="max-w-[900px]">

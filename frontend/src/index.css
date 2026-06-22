@@ -98,6 +98,23 @@ body { margin: 0; }
 }
 .animate-cursor-blink { animation: cursor-blink 0.9s step-start infinite; }
 
+/* User location marker ping */
+@keyframes pp-ping {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+.pp-location-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 133, 74, 0.6);
+  animation: pp-ping 1.8s ease-out infinite;
+}
+.pp-location-ring-2 {
+  animation-delay: 0.9s;
+  border-color: rgba(196, 133, 74, 0.3);
+}
+
 /* Respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
   .animate-float-slow, .animate-float-medium, .animate-float-fast,
@@ -106,6 +123,10 @@ body { margin: 0; }
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+  .pp-location-ring {
+    animation: none;
+    opacity: 0.5;
   }
 }
 
