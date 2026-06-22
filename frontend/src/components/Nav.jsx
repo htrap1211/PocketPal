@@ -53,6 +53,7 @@ export default function Nav() {
         <div className="flex items-center gap-[28px]">
           {navLink("/", "check in")}
           {navLink("/dashboard", "trends")}
+          {navLink("/insights", "insights")}
           <button
             onClick={() => setLargeText((v) => !v)}
             aria-label="Toggle large text"

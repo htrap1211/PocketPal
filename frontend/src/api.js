@@ -25,3 +25,21 @@ export async function fetchWeeklySummary() {
   if (!res.ok) return { insight: null };
   return res.json();
 }
+
+export async function fetchProfile() {
+  const res = await fetch("/api/profile");
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function fetchInsights() {
+  const res = await fetch("/api/insights");
+  if (!res.ok) return { themeStats: [] };
+  return res.json();
+}
+
+export async function fetchMonthlyReflection() {
+  const res = await fetch("/api/monthly-reflection");
+  if (!res.ok) return null;
+  return res.json();
+}

@@ -5,6 +5,7 @@ import Footer from "./components/Footer.jsx";
 import Onboarding from "./components/Onboarding.jsx";
 import CheckIn from "./pages/CheckIn.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Insights from "./pages/Insights.jsx";
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(
@@ -21,6 +22,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<CheckIn />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/insights" element={<Insights />} />
         </Routes>
       </main>
       <Footer />
