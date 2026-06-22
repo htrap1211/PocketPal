@@ -108,4 +108,74 @@ Note from the student: ${note?.trim() ? note.trim() : "(they didn't write anythi
   }
 }
 
+const WEEK_SYSTEM_PROMPT = `You are PocketPal, a warm peer-style companion for teenagers. You have been given a student's last 7 days of daily check-ins.
+
+Write 1-2 warm, specific sentences surfacing a pattern you notice across the week. Reference actual words or topics they wrote. Never be generic. Never diagnose anything.
+
+Return ONLY valid JSON, no markdown:
+{"insight": "...", "trend": "up"|"down"|"stable"}
+
+trend: "up" if mood generally improved over the week, "down" if it declined, "stable" if roughly flat.`;
+
+export async function analyzeWeek(checkins) {
+  const apiKey = process.env.ASI1_API_KEY;
+  const baseUrl = process.env.ASI1_BASE_URL || "https://api.asi1.ai/v1";
+  const model = process.env.ASI1_MODEL || "asi1-mini";
+
+  if (!apiKey) return { insight: null };
+
+  const lines = checkins
+    .map(
+      (c) =>
+        `${c.date.slice(0, 10)} | mood ${c.mood}/5 | ${c.sentiment} | ${c.note?.trim() || "(no note)"}`,
+    )
+    .join("\n");
+
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: WEEK_SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: `Student's last 7 days of check-ins (newest first):\n${lines}`,
+          },
+        ],
+        temperature: 0.5,
+        max_tokens: 200,
+      }),
+    });
+
+    if (!res.ok) return { insight: null };
+
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content ?? "";
+    const match = content.match(/\{[\s\S]*\}/);
+    let parsed = null;
+    try {
+      parsed = JSON.parse(match ? match[0] : content);
+    } catch {
+      return { insight: null };
+    }
+
+    if (parsed?.insight && typeof parsed.insight === "string") {
+      return {
+        insight: parsed.insight.trim(),
+        trend: ["up", "down", "stable"].includes(parsed.trend)
+          ? parsed.trend
+          : "stable",
+      };
+    }
+    return { insight: null };
+  } catch {
+    return { insight: null };
+  }
+}
+
 export { SENTIMENTS };

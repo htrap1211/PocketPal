@@ -1,32 +1,70 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-// Floating pill nav — 52px radius, white fill, soft 30px shadow (design token).
 export default function Nav() {
   const { pathname } = useLocation();
-  const link = (to, text) => {
+  const [largeText, setLargeText] = useState(
+    () => localStorage.getItem("pp_large_text") === "1",
+  );
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("large-text", largeText);
+    localStorage.setItem("pp_large_text", largeText ? "1" : "0");
+  }, [largeText]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const navLink = (to, label) => {
     const active = pathname === to;
     return (
       <Link
         to={to}
-        className={`rounded-[30px] px-[22px] py-3 text-[16px] tracking-body transition ${
-          active
-            ? "border border-carbon-black text-carbon-black"
-            : "text-stone hover:text-carbon-black"
+        className={`text-[12px] font-normal uppercase tracking-widest transition-opacity ${
+          scrolled
+            ? active ? "text-carbon opacity-100" : "text-ash hover:text-carbon"
+            : active ? "text-paper-white opacity-100" : "text-smoke hover:text-paper-white"
         }`}
       >
-        {text}
+        {label}
       </Link>
     );
   };
 
   return (
-    <nav className="sticky top-5 z-20 mx-auto flex w-[min(100%-32px,1100px)] items-center justify-between rounded-[52px] bg-paper-white px-[22px] py-4 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.06)]">
-      <Link to="/" className="text-[22px] tracking-heading text-hims-violet">
-        PocketPal
-      </Link>
-      <div className="flex items-center gap-1">
-        {link("/", "Check in")}
-        {link("/dashboard", "Trends")}
+    <nav
+      className={`fixed top-0 z-30 w-full transition-all duration-300 ${
+        scrolled ? "bg-paper-white border-b border-ash/20" : "bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex h-[68px] max-w-[1440px] items-center justify-between px-[40px]">
+        <Link
+          to="/"
+          className={`text-[12px] font-normal tracking-widest transition-colors ${
+            scrolled ? "text-carbon" : "text-paper-white"
+          }`}
+        >
+          POCKETPAL
+        </Link>
+        <div className="flex items-center gap-[28px]">
+          {navLink("/", "check in")}
+          {navLink("/dashboard", "trends")}
+          <button
+            onClick={() => setLargeText((v) => !v)}
+            aria-label="Toggle large text"
+            className={`text-[11px] font-normal transition-colors ${
+              largeText
+                ? scrolled ? "text-carbon" : "text-paper-white"
+                : "text-smoke hover:text-paper-white"
+            }`}
+          >
+            A+
+          </button>
+        </div>
       </div>
     </nav>
   );

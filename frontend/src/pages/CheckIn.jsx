@@ -11,10 +11,7 @@ export default function CheckIn() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!mood) {
-      setError("Pick how you're feeling first 🙂");
-      return;
-    }
+    if (!mood) { setError("pick how you're feeling first"); return; }
     setError("");
     setLoading(true);
     setResult(null);
@@ -36,87 +33,119 @@ export default function CheckIn() {
   }
 
   return (
-    <section className="mx-auto flex w-[min(100%-32px,640px)] flex-col items-center pt-[64px]">
-      {!result && (
-        <>
-          <h1 className="text-center text-[44px] leading-[1.1] tracking-heading text-hims-violet sm:text-[64px]">
-            How are you,
-            <br />
-            really?
-          </h1>
-          <p className="mt-5 text-center text-[18px] leading-[1.33] tracking-body text-stone">
-            Thirty seconds. Just you. No one's grading this one.
-          </p>
-
-          <form
-            onSubmit={handleSubmit}
-            className="mt-[40px] w-full rounded-[45px] bg-paper-white p-[32px] shadow-[0px_8px_127px_0px_rgba(0,0,0,0.11)]"
-          >
-            <label className="mb-4 block text-[16px] tracking-body text-graphite">
-              Today feels like…
-            </label>
-            <MoodPicker value={mood} onChange={setMood} />
-
-            <label className="mb-3 mt-[32px] block text-[16px] tracking-body text-graphite">
-              Want to say more? (totally optional)
-            </label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              rows={4}
-              placeholder="what's on your mind today…"
-              className="w-full resize-none rounded-[30px] border border-linen bg-paper-white p-5 text-[16px] leading-[1.43] tracking-body text-carbon-black outline-none placeholder:text-stone focus:border-hims-violet"
-            />
-
-            {error && (
-              <p className="mt-4 text-[14px] tracking-body text-stone">{error}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-[32px] w-full rounded-[30px] border border-carbon-black px-[22px] py-4 text-[16px] tracking-body text-carbon-black transition hover:bg-carbon-black hover:text-paper-white disabled:opacity-40"
-            >
-              {loading ? "Reading what you shared…" : "Check in"}
-            </button>
-          </form>
-        </>
-      )}
-
-      {result && (
-        <div className="w-full pt-[40px]">
-          <p className="text-center text-[14px] tracking-body text-stone">
-            Thanks for checking in 💛
-          </p>
-          <div className="mt-5 rounded-[45px] bg-paper-white p-[32px] shadow-[0px_8px_127px_0px_rgba(0,0,0,0.11)]">
-            <p className="text-[20px] leading-[1.33] tracking-body text-carbon-black">
-              {result.acknowledgment}
+    <>
+      {/* ── Dark immersive hero ── */}
+      {!result ? (
+        <section className="relative flex min-h-screen flex-col items-start justify-end bg-ink-black px-[40px] pb-[80px] pt-[68px] md:px-[80px]">
+          <div className="max-w-[1440px]">
+            <p className="mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+              daily check-in
             </p>
-            <div className="mt-6 rounded-[30px] border border-linen p-6">
-              <p className="mb-2 text-[14px] tracking-body text-hims-violet">
-                Try this
-              </p>
-              <p className="text-[18px] leading-[1.33] tracking-body text-graphite">
-                {result.tip}
-              </p>
-            </div>
+            <h1 className="text-[64px] font-light leading-[1.05] text-paper-white md:text-[94px]">
+              how are you,
+              <br />
+              really?
+            </h1>
+            <p className="mt-[28px] max-w-[360px] text-[16px] font-normal leading-[1.39] text-ash">
+              Thirty seconds. Just you. No one's grading this one.
+            </p>
           </div>
-          <div className="mt-8 flex justify-center gap-3">
-            <button
-              onClick={reset}
-              className="rounded-[30px] border border-carbon-black px-[22px] py-3 text-[16px] tracking-body text-carbon-black transition hover:bg-carbon-black hover:text-paper-white"
-            >
-              Check in again
-            </button>
-            <a
-              href="/dashboard"
-              className="rounded-[30px] px-[22px] py-3 text-[16px] tracking-body text-stone transition hover:text-carbon-black"
-            >
-              See my trends →
-            </a>
-          </div>
-        </div>
+          {/* scroll nudge */}
+          <p className="absolute bottom-[40px] right-[40px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+            scroll to check in ↓
+          </p>
+        </section>
+      ) : (
+        /* ── Dark result hero ── */
+        <section className="relative flex min-h-[60vh] flex-col items-start justify-end bg-ink-black px-[40px] pb-[80px] pt-[68px] md:px-[80px] animate-fade-in">
+          <p className="mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+            here's what I noticed
+          </p>
+          <p className="max-w-[720px] text-[39px] font-light leading-[1.19] text-paper-white">
+            {result.acknowledgment}
+          </p>
+        </section>
       )}
-    </section>
+
+      {/* ── White editorial form / result ── */}
+      <section className="bg-paper-white px-[40px] py-[80px] md:px-[80px]">
+        <div className="mx-auto max-w-[1440px]">
+
+          {!result && (
+            <form onSubmit={handleSubmit} className="max-w-[680px]">
+              {/* Mood picker */}
+              <div className="mb-[48px]">
+                <p className="mb-[28px] text-[12px] font-normal uppercase tracking-widest text-ash">
+                  today feels like
+                </p>
+                <MoodPicker value={mood} onChange={setMood} />
+              </div>
+
+              {/* Note */}
+              <div className="mb-[48px] border-b border-ash/30 pb-[48px]">
+                <p className="mb-[16px] text-[12px] font-normal uppercase tracking-widest text-ash">
+                  want to say more? (optional)
+                </p>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  rows={5}
+                  placeholder="what's on your mind today…"
+                  className="w-full resize-none bg-transparent text-[18px] font-normal leading-[1.36] text-carbon outline-none placeholder:text-smoke"
+                />
+              </div>
+
+              {/* Privacy + submit */}
+              <div className="flex flex-col gap-[28px] sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[12px] font-normal text-ash">
+                  🔒 your check-ins stay on this device and are never shared
+                </p>
+                <div className="flex items-center gap-[16px]">
+                  {error && (
+                    <p className="text-[12px] font-normal text-ash">{error}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="rounded-[75px] bg-ink-black px-[28px] py-[12px] text-[12px] font-normal text-paper-white transition-opacity hover:opacity-70 disabled:opacity-30"
+                  >
+                    {loading ? "reading…" : "check in"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          {result && (
+            <div className="max-w-[680px] animate-fade-up">
+              {/* Tip block */}
+              <div className="mb-[64px]">
+                <p className="mb-[28px] text-[12px] font-normal uppercase tracking-widest text-ash">
+                  try this
+                </p>
+                <p className="text-[30px] font-light leading-[1.25] text-carbon">
+                  {result.tip}
+                </p>
+              </div>
+
+              <div className="flex gap-[16px]">
+                <button
+                  onClick={reset}
+                  className="rounded-[75px] bg-ink-black px-[28px] py-[12px] text-[12px] font-normal text-paper-white transition-opacity hover:opacity-70"
+                >
+                  check in again
+                </button>
+                <a
+                  href="/dashboard"
+                  className="rounded-[75px] border border-ash/40 px-[28px] py-[12px] text-[12px] font-normal text-ash transition-colors hover:border-carbon hover:text-carbon"
+                >
+                  see my trends →
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </>
   );
 }

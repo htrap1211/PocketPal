@@ -1,9 +1,8 @@
 import { MOODS } from "../constants.js";
 
-// Emoji 1-5 scale. Selected mood gets the violet hairline ring (only accent).
 export default function MoodPicker({ value, onChange }) {
   return (
-    <div className="flex justify-between gap-2">
+    <div className="flex gap-[12px]">
       {MOODS.map((m) => {
         const active = value === m.score;
         return (
@@ -13,16 +12,21 @@ export default function MoodPicker({ value, onChange }) {
             onClick={() => onChange(m.score)}
             aria-pressed={active}
             aria-label={m.label}
-            className={`flex flex-1 flex-col items-center gap-2 rounded-[30px] py-4 transition ${
+            className={`group flex flex-1 flex-col items-center gap-[12px] py-[28px] transition-all duration-200 ${
               active
-                ? "border border-hims-violet shadow-[0px_8px_30px_0px_rgba(0,0,0,0.06)]"
-                : "border border-transparent hover:border-linen"
+                ? "bg-ink-black"
+                : "bg-paper-white border border-ash/30 hover:border-ash"
             }`}
           >
-            <span className="text-[34px] leading-none">{m.emoji}</span>
             <span
-              className={`text-[14px] tracking-body ${
-                active ? "text-hims-violet" : "text-stone"
+              key={active ? `${m.score}-on` : m.score}
+              className={`text-[32px] leading-none ${active ? "animate-bounce-in" : ""}`}
+            >
+              {m.emoji}
+            </span>
+            <span
+              className={`text-[11px] font-normal uppercase tracking-widest ${
+                active ? "text-paper-white" : "text-ash group-hover:text-carbon"
               }`}
             >
               {m.label}

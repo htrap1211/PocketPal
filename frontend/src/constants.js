@@ -1,5 +1,3 @@
-// Shared mood + sentiment metadata used across check-in and dashboard.
-
 export const MOODS = [
   { score: 1, emoji: "😣", label: "Rough" },
   { score: 2, emoji: "🙁", label: "Low" },
@@ -8,14 +6,12 @@ export const MOODS = [
   { score: 5, emoji: "😄", label: "Great" },
 ];
 
-// Sentiment -> display chip. Violet stays the only chromatic accent (per design);
-// sentiment uses neutral grays + the mint/iris decorative accents sparingly.
 export const SENTIMENT_META = {
-  stressed: { label: "stressed", color: "#8f8f8f" },
-  low: { label: "low", color: "#8f8f8f" },
-  okay: { label: "okay", color: "#2e2e2e" },
-  good: { label: "good", color: "#5d48db" },
-  great: { label: "great", color: "#5d48db" },
+  stressed: { label: "stressed", color: "#9a9a9a" },
+  low:      { label: "low",      color: "#9a9a9a" },
+  okay:     { label: "okay",     color: "#6d6d6d" },
+  good:     { label: "good",     color: "#181818" },
+  great:    { label: "great",    color: "#181818" },
 };
 
 export function moodMeta(score) {

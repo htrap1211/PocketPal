@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { analyzeCheckin } from "./asi1.js";
+import { analyzeCheckin, analyzeWeek } from "./asi1.js";
 import { addCheckin, getCheckins } from "./storage.js";
 
 const app = express();
@@ -52,6 +52,23 @@ app.get("/api/checkins", async (_req, res) => {
   } catch (err) {
     console.error("[checkins] error:", err);
     res.status(500).json({ error: "could not load check-ins" });
+  }
+});
+
+// GET /api/weekly-summary -> { insight: string|null, trend: 'up'|'down'|'stable' }
+app.get("/api/weekly-summary", async (_req, res) => {
+  try {
+    const checkins = await getCheckins();
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recent = checkins.filter(
+      (c) => new Date(c.date).getTime() >= weekAgo,
+    );
+    if (recent.length < 2) return res.json({ insight: null });
+    const result = await analyzeWeek(recent);
+    res.json(result);
+  } catch (err) {
+    console.error("[weekly-summary] error:", err);
+    res.json({ insight: null });
   }
 });
 

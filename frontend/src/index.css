@@ -1,49 +1,68 @@
 @import "tailwindcss";
 
-/* Design tokens from DESIGN (4).md — Hims style: monochrome white canvas,
-   single violet accent, big editorial type, long soft shadows. */
 @theme {
-  --color-hims-violet: #5d48db;
-  --color-carbon-black: #000000;
+  /* Colors — Monopo Saigon */
   --color-paper-white: #ffffff;
-  --color-vellum-gray: #f0f0f0;
-  --color-graphite: #2e2e2e;
-  --color-linen: #e0e0e0;
-  --color-stone: #8f8f8f;
-  --color-soft-mint: #3fd194;
-  --color-iris: #9685ff;
+  --color-ink-black:   #000000;
+  --color-carbon:      #181818;
+  --color-ash:         #6d6d6d;
+  --color-smoke:       #9a9a9a;
+  --color-pewter:      #808080;
+  --color-graphite:    #636363;
 
-  --font-sofia: "Sofia Sans", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, sans-serif;
+  /* Typography */
+  --font-roobert: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  --radius-card: 30px;
-  --radius-feature: 45px;
-  --radius-nav: 52px;
+  /* Spacing */
+  --spacing-8:   8px;
+  --spacing-12:  12px;
+  --spacing-28:  28px;
+  --spacing-40:  40px;
+  --spacing-48:  48px;
+  --spacing-64:  64px;
+  --spacing-68:  68px;
+  --spacing-120: 120px;
 
-  --shadow-xl: 0px 27px 104px 0px rgba(0, 0, 0, 0.12);
-  --shadow-xl-2: 0px 8px 127px 0px rgba(0, 0, 0, 0.11);
-  --shadow-xl-3: 0px 9px 46px 0px rgba(0, 0, 0, 0.25);
-  --shadow-xl-4: 0px 8px 30px 0px rgba(0, 0, 0, 0.06);
+  /* Radii — pill OR zero, nothing else */
+  --radius-pill: 75px;
 }
 
 html {
-  font-family: var(--font-sofia);
-  background: var(--color-paper-white);
-  color: var(--color-carbon-black);
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.39;
+  background: #ffffff;
+  color: #181818;
   -webkit-font-smoothing: antialiased;
 }
 
-body {
-  margin: 0;
+body { margin: 0; }
+
+/* Animations */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes bounce-in {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.15); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }
 
-/* Signature tight tracking from the design system. */
-.tracking-display {
-  letter-spacing: -0.047em;
-}
-.tracking-heading {
-  letter-spacing: -0.017em;
-}
-.tracking-body {
-  letter-spacing: -0.012em;
-}
+.animate-fade-up   { animation: fade-up 0.5s cubic-bezier(0.16,1,0.3,1); }
+.animate-fade-in   { animation: fade-in 0.4s ease-out; }
+.animate-bounce-in { animation: bounce-in 0.3s ease-out; }
+.animate-pulse     { animation: pulse 1.6s ease-in-out infinite; }
+
+/* Accessibility: large text */
+html.large-text { font-size: 20px; }

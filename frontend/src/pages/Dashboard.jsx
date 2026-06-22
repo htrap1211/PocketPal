@@ -8,9 +8,11 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { fetchCheckins } from "../api.js";
+import { fetchCheckins, fetchWeeklySummary } from "../api.js";
 import { moodMeta, SENTIMENT_META } from "../constants.js";
 import EscalationBanner from "../components/EscalationBanner.jsx";
+import WeeklyInsight from "../components/WeeklyInsight.jsx";
+import { calcStreak } from "../utils/streak.js";
 
 function fmtDay(iso) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -24,140 +26,170 @@ export default function Dashboard() {
   const [escalate, setEscalate] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [weekInsight, setWeekInsight] = useState(null);
+  const [weekLoading, setWeekLoading] = useState(true);
 
   useEffect(() => {
     fetchCheckins()
-      .then((data) => {
-        setCheckins(data.checkins);
-        setEscalate(data.escalate);
-      })
-      .catch((err) => setError(err.message))
+      .then((d) => { setCheckins(d.checkins); setEscalate(d.escalate); })
+      .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+    fetchWeeklySummary()
+      .then(setWeekInsight)
+      .finally(() => setWeekLoading(false));
   }, []);
 
-  // Last 14 days, oldest -> newest, for the trend line.
-  const chartData = [...checkins]
-    .slice(0, 14)
-    .reverse()
+  const chartData = [...checkins].slice(0, 14).reverse()
     .map((c) => ({ day: fmtDay(c.date), mood: c.mood }));
 
+  const streak = calcStreak(checkins);
+
   return (
-    <section className="mx-auto w-[min(100%-32px,720px)] pt-[64px]">
-      <h1 className="text-center text-[44px] leading-[1.15] tracking-heading text-carbon-black">
-        Your last two weeks
-      </h1>
-      <p className="mb-[40px] mt-4 text-center text-[18px] tracking-body text-stone">
-        Patterns, not grades. Just noticing how things have felt.
-      </p>
-
-      {escalate && <EscalationBanner />}
-
-      {loading && (
-        <p className="text-center text-[16px] tracking-body text-stone">
-          Loading…
+    <>
+      {/* ── Dark immersive hero ── */}
+      <section className="flex min-h-[70vh] flex-col items-start justify-end bg-ink-black px-[40px] pb-[80px] pt-[68px] md:px-[80px]">
+        <p className="mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+          mood history
         </p>
-      )}
-      {error && (
-        <p className="text-center text-[16px] tracking-body text-stone">
-          {error}
-        </p>
-      )}
-
-      {!loading && !error && checkins.length === 0 && (
-        <div className="rounded-[45px] bg-paper-white p-[32px] text-center shadow-[0px_8px_127px_0px_rgba(0,0,0,0.11)]">
-          <p className="text-[18px] tracking-body text-graphite">
-            No check-ins yet. Your trends will show up here once you've checked
-            in a few times.
+        <h1 className="text-[64px] font-light leading-[1.05] text-paper-white md:text-[94px]">
+          your last
+          <br />
+          two weeks
+        </h1>
+        {streak >= 2 && (
+          <p className="mt-[28px] text-[16px] font-normal text-smoke">
+            🔥 {streak}-day check-in streak
           </p>
-          <a
-            href="/"
-            className="mt-6 inline-block rounded-[30px] border border-carbon-black px-[22px] py-3 text-[16px] tracking-body text-carbon-black transition hover:bg-carbon-black hover:text-paper-white"
-          >
-            Do your first check-in
-          </a>
-        </div>
-      )}
+        )}
+        <p className="mt-[28px] max-w-[360px] text-[16px] font-normal leading-[1.39] text-ash">
+          Patterns, not grades. Just noticing how things have felt.
+        </p>
+      </section>
 
-      {!loading && checkins.length > 0 && (
-        <>
-          <div className="rounded-[45px] bg-paper-white p-[32px] shadow-[0px_8px_127px_0px_rgba(0,0,0,0.11)]">
-            <p className="mb-6 text-[16px] tracking-body text-graphite">
-              Mood over time
-            </p>
-            <ResponsiveContainer width="100%" height={240}>
-              <LineChart data={chartData} margin={{ left: -20, right: 8 }}>
-                <CartesianGrid stroke="#f0f0f0" vertical={false} />
-                <XAxis
-                  dataKey="day"
-                  tick={{ fill: "#8f8f8f", fontSize: 13 }}
-                  axisLine={{ stroke: "#e0e0e0" }}
-                  tickLine={false}
-                />
-                <YAxis
-                  domain={[1, 5]}
-                  ticks={[1, 2, 3, 4, 5]}
-                  tick={{ fill: "#8f8f8f", fontSize: 13 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 16,
-                    border: "1px solid #e0e0e0",
-                    fontSize: 14,
-                  }}
-                  formatter={(v) => [`${moodMeta(v).emoji} ${moodMeta(v).label}`, "Mood"]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="mood"
-                  stroke="#5d48db"
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: "#5d48db" }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+      {/* ── White editorial content ── */}
+      <section className="bg-paper-white px-[40px] py-[80px] md:px-[80px]">
+        <div className="mx-auto max-w-[1440px]">
 
-          <h2 className="mb-5 mt-[64px] text-[32px] tracking-heading text-carbon-black">
-            Past check-ins
-          </h2>
-          <ul className="flex flex-col gap-4">
-            {checkins.map((c) => {
-              const m = moodMeta(c.mood);
-              const s = SENTIMENT_META[c.sentiment] || SENTIMENT_META.okay;
-              return (
-                <li
-                  key={c.id}
-                  className="rounded-[30px] bg-paper-white p-6 shadow-[0px_8px_30px_0px_rgba(0,0,0,0.06)]"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-3 text-[18px] tracking-body text-carbon-black">
-                      <span className="text-[24px]">{m.emoji}</span>
-                      {m.label}
-                    </span>
-                    <span className="flex items-center gap-3 text-[14px] tracking-body text-stone">
-                      <span
-                        className="rounded-[30px] border px-3 py-1"
-                        style={{ borderColor: "#e0e0e0", color: s.color }}
+          {loading && (
+            <p className="text-[16px] font-normal text-ash">loading…</p>
+          )}
+          {error && (
+            <p className="text-[16px] font-normal text-ash">{error}</p>
+          )}
+
+          {!loading && !error && checkins.length === 0 && (
+            <div className="max-w-[560px]">
+              <p className="text-[18px] font-normal leading-[1.36] text-ash">
+                No check-ins yet. Your trends will show up here once you've
+                checked in a few times.
+              </p>
+              <a
+                href="/"
+                className="mt-[40px] inline-block rounded-[75px] bg-ink-black px-[28px] py-[12px] text-[12px] font-normal text-paper-white transition-opacity hover:opacity-70"
+              >
+                do your first check-in
+              </a>
+            </div>
+          )}
+
+          {!loading && checkins.length > 0 && (
+            <>
+              {escalate && <EscalationBanner />}
+
+              {/* Chart */}
+              <div className="mb-[80px] max-w-[900px]">
+                <p className="mb-[40px] text-[12px] font-normal uppercase tracking-widest text-ash">
+                  mood over time
+                </p>
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={chartData} margin={{ left: -20, right: 8 }}>
+                    <CartesianGrid stroke="#f0f0f0" vertical={false} />
+                    <XAxis
+                      dataKey="day"
+                      tick={{ fill: "#9a9a9a", fontSize: 11, fontWeight: 400 }}
+                      axisLine={{ stroke: "#e8e8e8" }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      domain={[1, 5]}
+                      ticks={[1, 2, 3, 4, 5]}
+                      tick={{ fill: "#9a9a9a", fontSize: 11, fontWeight: 400 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        border: "1px solid #e8e8e8",
+                        borderRadius: 0,
+                        fontSize: 12,
+                        fontWeight: 400,
+                        background: "#ffffff",
+                        color: "#181818",
+                      }}
+                      formatter={(v) => [
+                        `${moodMeta(v).emoji}  ${moodMeta(v).label}`,
+                        "mood",
+                      ]}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="mood"
+                      stroke="#181818"
+                      strokeWidth={1.5}
+                      dot={{ r: 3, fill: "#181818", strokeWidth: 0 }}
+                      activeDot={{ r: 5, fill: "#000000" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Weekly insight — dark immersive interlude */}
+              <WeeklyInsight
+                insight={weekInsight?.insight}
+                trend={weekInsight?.trend}
+                loading={weekLoading}
+              />
+
+              {/* Past check-ins list */}
+              <div className="max-w-[900px]">
+                <p className="mb-[40px] text-[12px] font-normal uppercase tracking-widest text-ash">
+                  past check-ins
+                </p>
+                <ul>
+                  {checkins.map((c) => {
+                    const m = moodMeta(c.mood);
+                    const s = SENTIMENT_META[c.sentiment] || SENTIMENT_META.okay;
+                    return (
+                      <li
+                        key={c.id}
+                        className="border-t border-ash/15 py-[28px] first:border-t-0"
                       >
-                        {s.label}
-                      </span>
-                      {fmtDay(c.date)}
-                    </span>
-                  </div>
-                  {c.note && (
-                    <p className="mt-3 text-[16px] leading-[1.43] tracking-body text-graphite">
-                      {c.note}
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </>
-      )}
-    </section>
+                        <div className="flex items-start justify-between gap-[24px]">
+                          <div className="flex items-center gap-[16px]">
+                            <span className="text-[24px] leading-none">{m.emoji}</span>
+                            <span className="text-[16px] font-normal text-carbon">
+                              {m.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-[16px] text-[11px] font-normal uppercase tracking-widest">
+                            <span style={{ color: s.color }}>{s.label}</span>
+                            <span className="text-smoke">{fmtDay(c.date)}</span>
+                          </div>
+                        </div>
+                        {c.note && (
+                          <p className="mt-[12px] max-w-[600px] pl-[40px] text-[16px] font-normal leading-[1.39] text-ash">
+                            {c.note}
+                          </p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+    </>
   );
 }

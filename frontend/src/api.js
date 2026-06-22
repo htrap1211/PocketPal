@@ -19,3 +19,9 @@ export async function fetchCheckins() {
   if (!res.ok) throw new Error("Could not load your check-ins.");
   return res.json();
 }
+
+export async function fetchWeeklySummary() {
+  const res = await fetch("/api/weekly-summary");
+  if (!res.ok) return { insight: null };
+  return res.json();
+}
