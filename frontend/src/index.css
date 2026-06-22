@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+/* Design tokens from DESIGN (4).md — Hims style: monochrome white canvas,
+   single violet accent, big editorial type, long soft shadows. */
+@theme {
+  --color-hims-violet: #5d48db;
+  --color-carbon-black: #000000;
+  --color-paper-white: #ffffff;
+  --color-vellum-gray: #f0f0f0;
+  --color-graphite: #2e2e2e;
+  --color-linen: #e0e0e0;
+  --color-stone: #8f8f8f;
+  --color-soft-mint: #3fd194;
+  --color-iris: #9685ff;
+
+  --font-sofia: "Sofia Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+
+  --radius-card: 30px;
+  --radius-feature: 45px;
+  --radius-nav: 52px;
+
+  --shadow-xl: 0px 27px 104px 0px rgba(0, 0, 0, 0.12);
+  --shadow-xl-2: 0px 8px 127px 0px rgba(0, 0, 0, 0.11);
+  --shadow-xl-3: 0px 9px 46px 0px rgba(0, 0, 0, 0.25);
+  --shadow-xl-4: 0px 8px 30px 0px rgba(0, 0, 0, 0.06);
+}
+
+html {
+  font-family: var(--font-sofia);
+  background: var(--color-paper-white);
+  color: var(--color-carbon-black);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+}
+
+/* Signature tight tracking from the design system. */
+.tracking-display {
+  letter-spacing: -0.047em;
+}
+.tracking-heading {
+  letter-spacing: -0.017em;
+}
+.tracking-body {
+  letter-spacing: -0.012em;
+}
