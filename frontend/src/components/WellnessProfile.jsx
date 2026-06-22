@@ -21,8 +21,8 @@ function FactorPill({ theme, variant }) {
 export default function WellnessProfile({ profile, loading }) {
   if (loading) {
     return (
-      <div className="mb-[80px]">
-        <div className="grid gap-[40px] md:grid-cols-2">
+      <div className="mb-[40px] sm:mb-[64px] md:mb-[80px]">
+        <div className="grid gap-[32px] sm:gap-[40px] md:grid-cols-2">
           {[0, 1].map((i) => (
             <div key={i}>
               <div className="mb-[20px] h-[11px] w-[100px] animate-pulse bg-smoke/30" />
@@ -43,15 +43,15 @@ export default function WellnessProfile({ profile, loading }) {
 
   if (!hasPositive && !hasStress) {
     return (
-      <p className="mb-[80px] text-[16px] font-normal text-ash">
+      <p className="mb-[40px] sm:mb-[80px] text-[15px] sm:text-[16px] font-normal text-ash">
         Check in a few more times to see your wellness profile.
       </p>
     );
   }
 
   return (
-    <div className="mb-[80px]">
-      <div className="grid gap-[48px] md:grid-cols-2">
+    <div className="mb-[40px] sm:mb-[64px] md:mb-[80px]">
+      <div className="grid gap-[40px] sm:gap-[48px] md:grid-cols-2">
         <div>
           <p className="mb-[20px] text-[11px] font-normal uppercase tracking-widest text-ash">
             lifts your mood

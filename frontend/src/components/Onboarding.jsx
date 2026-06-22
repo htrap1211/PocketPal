@@ -24,26 +24,27 @@ export default function Onboarding({ onDone }) {
   const s = SLIDES[slide];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-black">
-      <div className="animate-fade-up w-full max-w-[640px] px-[40px]">
-        <p className="mb-[48px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0d0c14]">
+      <div className="animate-fade-up w-full max-w-[640px] px-[24px] sm:px-[40px]">
+        <p className="mb-[36px] sm:mb-[48px] text-[11px] font-normal uppercase tracking-widest text-smoke">
           {s.index} / 03
         </p>
 
-        <h2 className="whitespace-pre-line text-[54px] font-light leading-[1.1] text-paper-white md:text-[78px]">
+        <h2 className="whitespace-pre-line text-[40px] sm:text-[54px] md:text-[72px] font-light leading-[1.1] text-paper-white">
           {s.heading}
         </h2>
 
-        <p className="mt-[40px] max-w-[400px] text-[18px] font-normal leading-[1.36] text-ash">
+        <p className="mt-[28px] sm:mt-[40px] max-w-[400px] text-[16px] sm:text-[18px] font-normal leading-[1.5] text-ash">
           {s.body}
         </p>
 
-        <div className="mt-[64px] flex items-center justify-between">
+        <div className="mt-[48px] sm:mt-[64px] flex items-center justify-between gap-[16px]">
           <div className="flex gap-[8px]">
             {SLIDES.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setSlide(i)}
+                aria-label={`Go to slide ${i + 1}`}
                 className={`h-[2px] transition-all duration-300 ${
                   i === slide ? "w-[32px] bg-paper-white" : "w-[12px] bg-smoke"
                 }`}
@@ -60,7 +61,7 @@ export default function Onboarding({ onDone }) {
                 setSlide((s) => s + 1);
               }
             }}
-            className="rounded-[75px] bg-paper-white px-[28px] py-[12px] text-[12px] font-normal text-ink-black transition-opacity hover:opacity-80"
+            className="rounded-[75px] bg-paper-white px-[24px] sm:px-[28px] py-[13px] text-[12px] font-normal text-[#0d0c14] transition-opacity hover:opacity-80 min-h-[48px]"
           >
             {last ? "get started" : "next →"}
           </button>

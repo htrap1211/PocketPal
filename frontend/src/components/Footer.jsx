@@ -1,11 +1,35 @@
 import { useEffect, useState } from "react";
 import { getHelpline, getHelplineByGPS } from "../utils/helpline.js";
 
+function CrisisLine({ line }) {
+  const isPhone = !/[a-z]/i.test(line);
+  if (isPhone) {
+    return (
+      <a
+        href={`tel:${line.replace(/[\s\-\(\)]/g, "")}`}
+        className="mt-[8px] block text-[18px] sm:text-[20px] font-light text-smoke hover:text-paper-white transition-colors"
+        aria-label={`Call crisis line: ${line}`}
+      >
+        {line}
+      </a>
+    );
+  }
+  return (
+    <a
+      href={`https://${line}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-[8px] block text-[18px] sm:text-[20px] font-light text-smoke hover:text-paper-white transition-colors"
+    >
+      {line}
+    </a>
+  );
+}
+
 export default function Footer() {
   const [helpline, setHelpline] = useState(() => getHelpline());
-  const [status, setStatus] = useState("loading"); // loading | located | denied
+  const [status, setStatus] = useState("loading");
 
-  // Auto-request GPS on mount — no button click needed.
   useEffect(() => {
     getHelplineByGPS().then((h) => {
       setHelpline(h);
@@ -14,9 +38,9 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer className="bg-carbon px-[40px] py-[48px]">
+    <footer className="bg-carbon px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[40px] sm:py-[48px]">
       <div className="mx-auto max-w-[1440px]">
-        <div className="flex flex-col gap-[28px] md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-[32px] md:flex-row md:items-start md:justify-between">
           <p className="text-[11px] font-normal uppercase tracking-widest text-smoke">
             PocketPal
           </p>
@@ -27,7 +51,6 @@ export default function Footer() {
               advice, a diagnosis, or a crisis service.
             </p>
 
-            {/* Crisis line block */}
             <div className="mt-[28px] border-l border-pewter pl-[16px]">
               <div className="flex items-center gap-[12px]">
                 <p className="text-[11px] font-normal uppercase tracking-widest text-pewter">
@@ -42,9 +65,8 @@ export default function Footer() {
                 )}
               </div>
 
-              <p className="mt-[8px] text-[16px] font-light text-smoke">
-                {helpline.line}
-              </p>
+              <CrisisLine line={helpline.line} />
+
               <p className="mt-[4px] text-[12px] font-normal leading-[1.58] text-pewter">
                 {helpline.label} — {helpline.extra}
               </p>
@@ -59,7 +81,14 @@ export default function Footer() {
                 {helpline.country
                   ? "For immediate danger call your local emergency number. Other countries: "
                   : "Find your local helpline: "}
-                <span className="text-pewter">befrienders.org</span>
+                <a
+                  href="https://befrienders.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-pewter hover:text-smoke transition-colors"
+                >
+                  befrienders.org
+                </a>
               </p>
             </div>
           </div>
