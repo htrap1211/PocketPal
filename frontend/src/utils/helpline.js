@@ -40,13 +40,13 @@ const FALLBACK = {
   extra: "find your local helpline at befrienders.org",
 };
 
+// Locale-based fallback (no permission needed).
 export function getHelpline() {
   try {
     const locale = new Intl.Locale(navigator.language);
     const region = locale.region;
     if (region && HELPLINES[region]) return HELPLINES[region];
   } catch {
-    // Intl.Locale not supported — try splitting the tag manually
     const parts = (navigator.language || "").split(/[-_]/);
     if (parts.length > 1) {
       const code = parts[parts.length - 1].toUpperCase();
@@ -54,4 +54,32 @@ export function getHelpline() {
     }
   }
   return FALLBACK;
+}
+
+// GPS-based lookup — triggers browser permission prompt.
+// Resolves to a helpline object; never rejects (falls back on any error).
+export async function getHelplineByGPS() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(getHelpline());
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const res = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`,
+          );
+          const data = await res.json();
+          const code = data?.countryCode?.toUpperCase();
+          resolve(HELPLINES[code] || FALLBACK);
+        } catch {
+          resolve(getHelpline());
+        }
+      },
+      () => resolve(getHelpline()), // denied or error — fall back to locale
+      { timeout: 8000, maximumAge: 300_000 },
+    );
+  });
 }

@@ -1,8 +1,17 @@
-import { getHelpline } from "../utils/helpline.js";
-
-const h = getHelpline();
+import { useState } from "react";
+import { getHelpline, getHelplineByGPS } from "../utils/helpline.js";
 
 export default function Footer() {
+  const [helpline, setHelpline] = useState(() => getHelpline());
+  const [status, setStatus] = useState("idle"); // idle | loading | located | denied
+
+  async function handleLocate() {
+    setStatus("loading");
+    const h = await getHelplineByGPS();
+    setHelpline(h);
+    setStatus(h.country ? "located" : "denied");
+  }
+
   return (
     <footer className="bg-carbon px-[40px] py-[48px]">
       <div className="mx-auto max-w-[1440px]">
@@ -17,30 +26,47 @@ export default function Footer() {
               advice, a diagnosis, or a crisis service.
             </p>
 
-            {/* Location-aware crisis line */}
+            {/* Crisis line block */}
             <div className="mt-[28px] border-l border-pewter pl-[16px]">
-              <p className="text-[11px] font-normal uppercase tracking-widest text-pewter">
-                {h.country ? `crisis support — ${h.country}` : "crisis support — worldwide"}
-              </p>
+              <div className="flex items-center justify-between gap-[16px]">
+                <p className="text-[11px] font-normal uppercase tracking-widest text-pewter">
+                  {status === "located" && helpline.country
+                    ? `crisis support — ${helpline.country}`
+                    : helpline.country
+                    ? `crisis support — ${helpline.country}`
+                    : "crisis support — worldwide"}
+                </p>
+
+                {status !== "located" && (
+                  <button
+                    onClick={handleLocate}
+                    disabled={status === "loading"}
+                    className="rounded-[75px] border border-pewter px-[12px] py-[4px] text-[11px] font-normal text-pewter transition-colors hover:border-smoke hover:text-smoke disabled:opacity-40"
+                  >
+                    {status === "loading" ? "locating…" : "📍 use my location"}
+                  </button>
+                )}
+              </div>
+
               <p className="mt-[8px] text-[16px] font-light text-smoke">
-                {h.line}
+                {helpline.line}
               </p>
               <p className="mt-[4px] text-[12px] font-normal leading-[1.58] text-pewter">
-                {h.label} — {h.extra}
+                {helpline.label} — {helpline.extra}
               </p>
-              {h.country && (
-                <p className="mt-[12px] text-[11px] font-normal leading-[1.5] text-graphite">
-                  If you're in immediate danger, call your local emergency number.
-                  For other countries visit{" "}
-                  <span className="text-pewter">befrienders.org</span>
+
+              {status === "denied" && (
+                <p className="mt-[8px] text-[11px] font-normal text-graphite">
+                  location access denied — showing closest match for your region
                 </p>
               )}
-              {!h.country && (
-                <p className="mt-[12px] text-[11px] font-normal text-graphite">
-                  Find your local helpline at{" "}
-                  <span className="text-pewter">befrienders.org</span>
-                </p>
-              )}
+
+              <p className="mt-[12px] text-[11px] font-normal leading-[1.5] text-graphite">
+                {helpline.country
+                  ? "For immediate danger call your local emergency number. Other countries: "
+                  : "Find your local helpline: "}
+                <span className="text-pewter">befrienders.org</span>
+              </p>
             </div>
           </div>
         </div>
