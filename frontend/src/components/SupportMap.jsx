@@ -1,6 +1,5 @@
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { useEffect, useRef, useState } from "react";
 import { fetchSupportPlaces } from "../utils/overpass.js";
 
@@ -34,30 +33,76 @@ function moodColor(mood) {
   return !mood || mood <= 2 ? "#c4854a" : "#9a9a9a";
 }
 
-function placeIcon(color, active = false) {
-  const s = active ? 14 : 10;
-  return L.divIcon({
-    html: `<div style="width:${s}px;height:${s}px;border-radius:50%;background:${color};border:${active ? 2 : 1.5}px solid rgba(255,255,255,${active ? 0.7 : 0.3});box-shadow:0 0 ${active ? 12 : 4}px ${color}80;"></div>`,
-    className: "",
-    iconSize: [s, s],
-    iconAnchor: [s / 2, s / 2],
-  });
+// ── Vanilla Leaflet map (no react-leaflet) ────────────────────────────────────
+
+function LeafletMap({ location, places, selected, onSelect, mood }) {
+  const containerRef = useRef(null);
+  const mapRef = useRef(null);
+  const placeMarkersRef = useRef([]);
+  const color = moodColor(mood);
+
+  // Init map once
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      zoomControl: false,
+      attributionControl: false,
+    }).setView([location.lat, location.lon], 14);
+
+    L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      { subdomains: "abcd", maxZoom: 19 }
+    ).addTo(map);
+
+    // User location marker with pulsing ring
+    const userIcon = L.divIcon({
+      html: `<div style="position:relative;width:24px;height:24px;">
+        <div class="pp-location-ring"></div>
+        <div class="pp-location-ring pp-location-ring-2"></div>
+        <div style="position:absolute;inset:7px;background:#c4854a;border-radius:50%;"></div>
+      </div>`,
+      className: "",
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+    });
+    L.marker([location.lat, location.lon], { icon: userIcon, zIndexOffset: 1000 }).addTo(map);
+
+    mapRef.current = map;
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
+
+  // Sync place markers whenever places or selected changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    placeMarkersRef.current.forEach((m) => m.remove());
+    placeMarkersRef.current = [];
+
+    places.forEach((p) => {
+      const active = selected?.id === p.id;
+      const s = active ? 14 : 10;
+      const icon = L.divIcon({
+        html: `<div style="width:${s}px;height:${s}px;border-radius:50%;background:${color};border:${active ? 2 : 1.5}px solid rgba(255,255,255,${active ? 0.7 : 0.3});box-shadow:0 0 ${active ? 12 : 4}px ${color}80;"></div>`,
+        className: "",
+        iconSize: [s, s],
+        iconAnchor: [s / 2, s / 2],
+      });
+      const marker = L.marker([p.lat, p.lon], { icon })
+        .on("click", () => onSelect(p))
+        .addTo(map);
+      placeMarkersRef.current.push(marker);
+    });
+  }, [places, selected]);
+
+  return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
 }
 
-function userIcon() {
-  return L.divIcon({
-    html: `<div style="position:relative;width:24px;height:24px;">
-      <div class="pp-location-ring"></div>
-      <div class="pp-location-ring pp-location-ring-2"></div>
-      <div style="position:absolute;inset:7px;background:#c4854a;border-radius:50%;"></div>
-    </div>`,
-    className: "",
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
-  });
-}
-
-// ── States ────────────────────────────────────────────────────────────────────
+// ── UI states ─────────────────────────────────────────────────────────────────
 
 function RadarLoader({ status }) {
   return (
@@ -89,7 +134,7 @@ function RadarLoader({ status }) {
 
 function MapError() {
   return (
-    <div className="flex h-[220px] flex-col items-center justify-center gap-[14px] bg-[#0d0c14] px-[24px] text-center">
+    <div className="flex h-[200px] flex-col items-center justify-center gap-[14px] bg-[#0d0c14] px-[24px] text-center">
       <p className="text-[11px] font-normal uppercase tracking-widest text-smoke">
         location unavailable
       </p>
@@ -110,12 +155,12 @@ function MapError() {
 
 function MapEmpty() {
   return (
-    <div className="flex h-[220px] flex-col items-center justify-center gap-[14px] bg-[#0d0c14] px-[24px] text-center">
+    <div className="flex h-[200px] flex-col items-center justify-center gap-[14px] bg-[#0d0c14] px-[24px] text-center">
       <p className="text-[11px] font-normal uppercase tracking-widest text-smoke">
         no places found within 5km
       </p>
       <p className="max-w-[280px] text-[14px] font-light leading-[1.5] text-ash">
-        OSM data may be sparse here. Try finding support online:
+        OSM data may be sparse here. Try:
       </p>
       <a
         href="https://findahelpline.com"
@@ -133,7 +178,7 @@ function PlaceCard({ place, onClose }) {
   return (
     <div className="animate-fade-up border-t border-paper-white/10 bg-[#0d0c14] px-[20px] sm:px-[28px] py-[20px]">
       <div className="flex items-start justify-between gap-[16px]">
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="mb-[8px] flex flex-wrap items-center gap-[8px]">
             <span>{TYPE_EMOJI[place.type] || "📍"}</span>
             <p className="text-[11px] font-normal uppercase tracking-widest text-smoke capitalize">
@@ -178,7 +223,7 @@ function PlaceCard({ place, onClose }) {
         <button
           onClick={onClose}
           aria-label="Close place details"
-          className="flex-shrink-0 text-[20px] leading-none text-smoke/50 hover:text-smoke transition-colors"
+          className="flex-shrink-0 text-[20px] leading-none text-smoke/50 transition-colors hover:text-smoke"
         >
           ×
         </button>
@@ -195,7 +240,7 @@ function NearbyList({ places, selected, onSelect, mood }) {
         <button
           key={p.id}
           onClick={() => onSelect(selected?.id === p.id ? null : p)}
-          className={`flex w-full items-center justify-between gap-[16px] border-t border-paper-white/[0.06] px-[20px] sm:px-[28px] py-[13px] text-left transition-colors hover:bg-paper-white/[0.04] first:border-t-0 ${
+          className={`flex w-full items-center justify-between gap-[16px] border-t border-paper-white/[0.06] px-[20px] sm:px-[28px] py-[13px] text-left transition-colors first:border-t-0 hover:bg-paper-white/[0.04] ${
             selected?.id === p.id ? "bg-paper-white/[0.06]" : ""
           }`}
         >
@@ -270,40 +315,17 @@ export default function SupportMap({ lastMood }) {
   if (status === "error") return <MapError />;
   if (status === "empty") return <MapEmpty />;
 
-  const color = moodColor(lastMood);
-
   return (
     <div className="animate-fade-in overflow-hidden">
-      {/* Map */}
       <div className="h-[300px] sm:h-[400px]">
-        <MapContainer
-          center={[location.lat, location.lon]}
-          zoom={14}
-          style={{ height: "100%", width: "100%" }}
-          zoomControl={false}
-          attributionControl={false}
-        >
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            subdomains="abcd"
-            maxZoom={19}
-          />
-          <Marker
-            position={[location.lat, location.lon]}
-            icon={userIcon()}
-          />
-          {places.map((p) => (
-            <Marker
-              key={p.id}
-              position={[p.lat, p.lon]}
-              icon={placeIcon(color, selected?.id === p.id)}
-              eventHandlers={{ click: () => setSelected(p) }}
-            />
-          ))}
-        </MapContainer>
+        <LeafletMap
+          location={location}
+          places={places}
+          selected={selected}
+          onSelect={setSelected}
+          mood={lastMood}
+        />
       </div>
-
-      {/* Info panel */}
       {selected ? (
         <PlaceCard place={selected} onClose={() => setSelected(null)} />
       ) : (
