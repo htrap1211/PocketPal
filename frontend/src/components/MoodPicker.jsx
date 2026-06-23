@@ -11,7 +11,10 @@ export default function MoodPicker({ value, onChange }) {
             <button
               key={m.score}
               type="button"
-              onClick={() => onChange(m.score)}
+              onClick={() => {
+                if (navigator.vibrate) navigator.vibrate(8);
+                onChange(m.score);
+              }}
               aria-pressed={active}
               aria-label={`${m.label} — mood ${m.score} out of 5`}
               className={`group flex flex-1 flex-col items-center gap-[8px] sm:gap-[12px] py-[16px] sm:py-[24px] min-h-[88px] transition-all duration-200 ${

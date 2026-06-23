@@ -1,7 +1,19 @@
 import { useEffect, useState } from "react";
 import MoodPicker from "../components/MoodPicker.jsx";
 import HeroOrbs from "../components/HeroOrbs.jsx";
+import Confetti from "../components/Confetti.jsx";
 import { submitCheckin } from "../api.js";
+import { MOODS } from "../constants.js";
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const MOOD_BG = {
+  1: "#130c0c", // struggling  — deep crimson-dark
+  2: "#12100a", // hard        — deep amber-dark
+  3: "#0d0c14", // okay        — indigo-dark (default)
+  4: "#0b130d", // good        — deep emerald-dark
+  5: "#090e15", // great       — deep sapphire-dark
+};
 
 function getTimeContext() {
   const h = new Date().getHours();
@@ -23,7 +35,7 @@ function getTimeContext() {
   };
   if (h < 20) return {
     eyebrow: "good evening",
-    subtitle: "How did today go, really? A moment to check in with yourself.",
+    subtitle: "How did today go, really? A moment to check in.",
   };
   return {
     eyebrow: "evening check-in",
@@ -69,14 +81,50 @@ function Typewriter({ text, speed = 13 }) {
   );
 }
 
+// Concentric breathing rings — visible in hero while user reads the prompt
+function BreathCircle() {
+  return (
+    <div
+      className="pointer-events-none absolute bottom-[80px] right-[32px] hidden select-none flex-col items-center gap-[10px] sm:flex animate-fade-in"
+      style={{ animationDelay: "1100ms" }}
+      aria-hidden="true"
+    >
+      <div className="relative h-[72px] w-[72px]">
+        <div
+          className="absolute inset-0 rounded-full border border-paper-white/[0.07] animate-breath"
+        />
+        <div
+          className="absolute inset-[22%] rounded-full border border-paper-white/[0.1] animate-breath"
+          style={{ animationDelay: "0.4s" }}
+        />
+        <div
+          className="absolute inset-[44%] rounded-full border border-paper-white/[0.18] animate-breath"
+          style={{ animationDelay: "0.8s" }}
+        />
+      </div>
+      <p className="text-[9px] font-normal uppercase tracking-[0.2em] text-smoke/35 animate-breath">
+        breathe
+      </p>
+    </div>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+
 export default function CheckIn() {
   const [mood, setMood] = useState(null);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [confettiKey, setConfettiKey] = useState(0);
 
   const { eyebrow, subtitle } = getTimeContext();
+  const heroBg = mood && !result ? MOOD_BG[mood] : "#0d0c14";
+  const ghostEmoji = !result && mood
+    ? MOODS.find((m) => m.score === mood)?.emoji
+    : null;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -87,6 +135,9 @@ export default function CheckIn() {
     try {
       const data = await submitCheckin({ mood, note });
       setResult(data.checkin);
+      setShowConfetti(true);
+      setConfettiKey((k) => k + 1);
+      setTimeout(() => setShowConfetti(false), 3800);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -99,14 +150,35 @@ export default function CheckIn() {
     setNote("");
     setResult(null);
     setError("");
+    setShowConfetti(false);
   }
 
   return (
     <>
+      {showConfetti && <Confetti key={confettiKey} />}
+
       {/* ── Dark hero ── */}
       {!result ? (
-        <section className="relative flex min-h-[85svh] flex-col items-start justify-end overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px]">
+        <section
+          className="relative flex min-h-[85svh] flex-col items-start justify-end overflow-hidden px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px]"
+          style={{
+            backgroundColor: heroBg,
+            transition: "background-color 800ms cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
           <HeroOrbs />
+
+          {/* Ghost emoji watermark — whispers the selected mood */}
+          {ghostEmoji && (
+            <span
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[clamp(160px,30vw,280px)] leading-none animate-fade-in"
+              style={{ opacity: 0.045 }}
+              aria-hidden="true"
+            >
+              {ghostEmoji}
+            </span>
+          )}
+
           <div className="relative z-10 max-w-[1440px]">
             <p
               className="mb-[24px] sm:mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke animate-slide-up"
@@ -115,16 +187,10 @@ export default function CheckIn() {
               {eyebrow}
             </p>
             <h1 className="text-[42px] sm:text-[58px] lg:text-[82px] font-light leading-[1.05] text-paper-white">
-              <span
-                className="block animate-slide-up"
-                style={{ animationDelay: "200ms" }}
-              >
+              <span className="block animate-slide-up" style={{ animationDelay: "200ms" }}>
                 how are you,
               </span>
-              <span
-                className="block animate-slide-up"
-                style={{ animationDelay: "370ms" }}
-              >
+              <span className="block animate-slide-up" style={{ animationDelay: "370ms" }}>
                 really?
               </span>
             </h1>
@@ -135,15 +201,18 @@ export default function CheckIn() {
               {subtitle}
             </p>
           </div>
+
+          <BreathCircle />
+
           <p
-            className="absolute bottom-[32px] right-[20px] hidden animate-fade-in text-[11px] font-normal uppercase tracking-widest text-smoke/60 sm:right-[40px] sm:block"
+            className="absolute bottom-[32px] right-[20px] hidden animate-fade-in text-[11px] font-normal uppercase tracking-widest text-smoke/50 sm:right-[40px] sm:block"
             style={{ animationDelay: "900ms" }}
           >
             scroll to check in ↓
           </p>
         </section>
       ) : (
-        /* ── Result hero — AI types to you ── */
+        /* ── Result hero — AI types back to you ── */
         <section className="relative flex min-h-[55svh] sm:min-h-[60vh] flex-col items-start justify-end overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px] animate-fade-in">
           <HeroOrbs />
           <div className="relative z-10">
@@ -160,7 +229,7 @@ export default function CheckIn() {
         </section>
       )}
 
-      {/* ── White editorial form / result ── */}
+      {/* ── White editorial ── */}
       <section className="bg-paper-white px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[48px] sm:py-[64px] md:py-[80px]">
         <div className="mx-auto max-w-[1440px]">
 
@@ -199,7 +268,7 @@ export default function CheckIn() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="min-h-[48px] rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98] active:scale-[0.96] disabled:opacity-30"
+                    className="min-h-[48px] rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98] active:scale-[0.94] disabled:opacity-30"
                   >
                     {loading ? "reading…" : "check in"}
                   </button>
@@ -222,7 +291,7 @@ export default function CheckIn() {
               <div className="flex flex-wrap gap-[12px]">
                 <button
                   onClick={reset}
-                  className="min-h-[48px] rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98] active:scale-[0.96]"
+                  className="min-h-[48px] rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98] active:scale-[0.94]"
                 >
                   check in again
                 </button>

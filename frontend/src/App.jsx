@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Nav from "./components/Nav.jsx";
 import Footer from "./components/Footer.jsx";
 import Onboarding from "./components/Onboarding.jsx";
@@ -11,6 +11,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(
     () => !localStorage.getItem("pp_onboarded"),
   );
+  const location = useLocation();
 
   return (
     <div className="flex min-h-screen flex-col bg-paper-white">
@@ -18,7 +19,7 @@ export default function App() {
         <Onboarding onDone={() => setShowOnboarding(false)} />
       )}
       <Nav />
-      <main className="flex-1">
+      <main key={location.pathname} className="flex-1 animate-page-enter">
         <Routes>
           <Route path="/" element={<CheckIn />} />
           <Route path="/dashboard" element={<Dashboard />} />
