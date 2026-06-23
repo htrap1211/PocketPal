@@ -1,8 +1,11 @@
-// Thin API client. Uses the Vite dev proxy (/api -> backend). The ASI1 key
-// lives only on the backend; the browser never sees it.
+// Thin API client.
+// Dev: Vite proxy forwards /api → localhost:8787 (see vite.config.js).
+// Prod: VITE_API_URL env var points to Railway backend; empty string = same origin.
+
+const BASE = import.meta.env.VITE_API_URL ?? "";
 
 export async function submitCheckin({ mood, note }) {
-  const res = await fetch("/api/checkin", {
+  const res = await fetch(`${BASE}/api/checkin`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mood, note }),
@@ -15,49 +18,49 @@ export async function submitCheckin({ mood, note }) {
 }
 
 export async function fetchCheckins() {
-  const res = await fetch("/api/checkins");
+  const res = await fetch(`${BASE}/api/checkins`);
   if (!res.ok) throw new Error("Could not load your check-ins.");
   return res.json();
 }
 
 export async function fetchWeeklySummary() {
-  const res = await fetch("/api/weekly-summary");
+  const res = await fetch(`${BASE}/api/weekly-summary`);
   if (!res.ok) return { insight: null };
   return res.json();
 }
 
 export async function fetchProfile() {
-  const res = await fetch("/api/profile");
+  const res = await fetch(`${BASE}/api/profile`);
   if (!res.ok) return null;
   return res.json();
 }
 
 export async function fetchInsights() {
-  const res = await fetch("/api/insights");
+  const res = await fetch(`${BASE}/api/insights`);
   if (!res.ok) return { themeStats: [] };
   return res.json();
 }
 
 export async function fetchMonthlyReflection() {
-  const res = await fetch("/api/monthly-reflection");
+  const res = await fetch(`${BASE}/api/monthly-reflection`);
   if (!res.ok) return null;
   return res.json();
 }
 
 export async function fetchChapter() {
-  const res = await fetch("/api/chapter");
+  const res = await fetch(`${BASE}/api/chapter`);
   if (!res.ok) return { chapter: null };
   return res.json();
 }
 
 export async function fetchCoreMemories() {
-  const res = await fetch("/api/core-memories");
+  const res = await fetch(`${BASE}/api/core-memories`);
   if (!res.ok) return { memories: [] };
   return res.json();
 }
 
 export async function submitFutureMe({ message, unlockDays }) {
-  const res = await fetch("/api/future-me", {
+  const res = await fetch(`${BASE}/api/future-me`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message, unlockDays }),
@@ -70,25 +73,25 @@ export async function submitFutureMe({ message, unlockDays }) {
 }
 
 export async function fetchFutureMe() {
-  const res = await fetch("/api/future-me");
+  const res = await fetch(`${BASE}/api/future-me`);
   if (!res.ok) return { messages: [] };
   return res.json();
 }
 
 export async function fetchMovieRecap() {
-  const res = await fetch("/api/movie-recap");
+  const res = await fetch(`${BASE}/api/movie-recap`);
   if (!res.ok) return { recap: null };
   return res.json();
 }
 
 export async function fetchWrapped() {
-  const res = await fetch("/api/wrapped");
+  const res = await fetch(`${BASE}/api/wrapped`);
   if (!res.ok) return { wrapped: null };
   return res.json();
 }
 
 export async function generateDemo() {
-  const res = await fetch("/api/demo", {
+  const res = await fetch(`${BASE}/api/demo`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });

@@ -37,7 +37,9 @@ async function writeFutureMe(list) {
 const app = express();
 const PORT = process.env.PORT || 8787;
 
-app.use(cors());
+// Allow Netlify frontend + localhost dev. Set ALLOWED_ORIGIN in Railway env vars.
+const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
+app.use(cors({ origin: allowedOrigin }));
 app.use(express.json());
 
 const LOW_SENTIMENTS = new Set(["stressed", "low"]);
