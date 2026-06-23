@@ -1,3 +1,40 @@
+// Timezone → ISO country code. OS timezone is unaffected by VPN.
+const TZ_TO_COUNTRY = {
+  "Europe/Berlin": "DE", "Europe/Paris": "FR", "Europe/Brussels": "BE",
+  "Europe/Amsterdam": "NL", "Europe/Zurich": "CH", "Europe/Vienna": "AT",
+  "Europe/Stockholm": "SE", "Europe/Oslo": "NO", "Europe/Copenhagen": "DK",
+  "Europe/Helsinki": "FI", "Europe/London": "GB", "Europe/Dublin": "IE",
+  "America/New_York": "US", "America/Chicago": "US", "America/Denver": "US",
+  "America/Los_Angeles": "US", "America/Phoenix": "US", "America/Anchorage": "US",
+  "Pacific/Honolulu": "US",
+  "America/Toronto": "CA", "America/Vancouver": "CA", "America/Winnipeg": "CA",
+  "America/Halifax": "CA", "America/St_Johns": "CA",
+  "Australia/Sydney": "AU", "Australia/Melbourne": "AU", "Australia/Brisbane": "AU",
+  "Australia/Perth": "AU", "Australia/Adelaide": "AU",
+  "Pacific/Auckland": "NZ",
+  "Asia/Kolkata": "IN", "Asia/Calcutta": "IN",
+  "Africa/Johannesburg": "ZA",
+  "Asia/Tokyo": "JP",
+  "Asia/Singapore": "SG",
+  "Asia/Manila": "PH",
+  "America/Mexico_City": "MX", "America/Monterrey": "MX", "America/Tijuana": "MX",
+  "America/Sao_Paulo": "BR", "America/Manaus": "BR", "America/Fortaleza": "BR",
+  "America/Argentina/Buenos_Aires": "AR",
+  "Asia/Seoul": "KR",
+  "Asia/Hong_Kong": "HK",
+  "Asia/Jerusalem": "IL",
+  "Asia/Karachi": "PK",
+  "Africa/Lagos": "NG",
+  "Africa/Nairobi": "KE",
+};
+
+function getCountryFromTimezone() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return TZ_TO_COUNTRY[tz] ?? null;
+  } catch { return null; }
+}
+
 const HELPLINES = {
   US: { country: "United States",    line: "988",               label: "Suicide & Crisis Lifeline",          extra: "call or text 988, 24/7" },
   CA: { country: "Canada",           line: "1-833-456-4566",    label: "Crisis Services Canada",             extra: "Kids Help Phone: 1-800-668-6868" },
@@ -30,6 +67,10 @@ const HELPLINES = {
   NG: { country: "Nigeria",          line: "08000700800",       label: "SURPIN",                             extra: "free" },
   KE: { country: "Kenya",            line: "0800 720 990",      label: "Befrienders Kenya",                  extra: "free" },
 };
+
+export const HELPLINES_LIST = Object.entries(HELPLINES)
+  .map(([code, h]) => ({ code, ...h }))
+  .sort((a, b) => a.country.localeCompare(b.country));
 
 const FALLBACK = {
   country: null,
@@ -65,16 +106,25 @@ async function fetchWithTimeout(url, ms = 5000) {
 }
 
 // Resolve helpline by physical location.
-// Chain: IP geolocation (no permission) → GPS reverse-geocode → locale fallback.
+// Chain: timezone (VPN-proof) → IP geo → GPS → locale fallback.
 export async function getHelplineByGPS() {
-  // 1. IP geolocation — no browser permission needed, works instantly.
+  // 1. OS timezone — instant, no network, unaffected by VPN.
+  const tzCode = getCountryFromTimezone();
+  if (tzCode && HELPLINES[tzCode]) return HELPLINES[tzCode];
+
+  // 2a. ip-api.com — accurate EU coverage, no key, no permission needed.
+  try {
+    const data = await fetchWithTimeout("https://ip-api.com/json/?fields=countryCode");
+    const code = data?.countryCode?.toUpperCase();
+    if (code && HELPLINES[code]) return HELPLINES[code];
+  } catch {}
+
+  // 2b. ipapi.co — different IP database as secondary.
   try {
     const data = await fetchWithTimeout("https://ipapi.co/json/");
     const code = data?.country_code?.toUpperCase();
     if (code && HELPLINES[code]) return HELPLINES[code];
-  } catch {
-    // network error or rate limit — continue to GPS
-  }
+  } catch {}
 
   // 2. GPS + reverse geocode — more precise, may show permission prompt.
   if (navigator.geolocation) {

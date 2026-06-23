@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
 import MoodPicker from "../components/MoodPicker.jsx";
-import HeroOrbs from "../components/HeroOrbs.jsx";
 import Confetti from "../components/Confetti.jsx";
 import { submitCheckin } from "../api.js";
 import { MOODS } from "../constants.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-const MOOD_BG = {
-  1: "#130c0c", // struggling  — deep crimson-dark
-  2: "#12100a", // hard        — deep amber-dark
-  3: "#0d0c14", // okay        — indigo-dark (default)
-  4: "#0b130d", // good        — deep emerald-dark
-  5: "#090e15", // great       — deep sapphire-dark
-};
 
 function getTimeContext() {
   const h = new Date().getHours();
@@ -72,7 +63,7 @@ function Typewriter({ text, speed = 13 }) {
       {displayed}
       {cursorOn && (
         <span
-          className="ml-[3px] inline-block w-[2px] bg-paper-white animate-cursor-blink align-middle"
+          className="ml-[3px] inline-block w-[2px] bg-[#26313b] animate-cursor-blink align-middle"
           style={{ height: "0.82em" }}
           aria-hidden="true"
         />
@@ -121,10 +112,7 @@ export default function CheckIn() {
   const [confettiKey, setConfettiKey] = useState(0);
 
   const { eyebrow, subtitle } = getTimeContext();
-  const heroBg = mood && !result ? MOOD_BG[mood] : "#0d0c14";
-  const ghostEmoji = !result && mood
-    ? MOODS.find((m) => m.score === mood)?.emoji
-    : null;
+  const selectedMood = MOODS.find((m) => m.score === mood);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -157,133 +145,113 @@ export default function CheckIn() {
     <>
       {showConfetti && <Confetti key={confettiKey} />}
 
-      {/* ── Dark hero ── */}
       {!result ? (
         <section
-          className="relative flex min-h-[85svh] flex-col items-start justify-end overflow-hidden px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px]"
-          style={{
-            backgroundColor: heroBg,
-            transition: "background-color 800ms cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
+          className="neo-section relative flex min-h-[100dvh] items-center overflow-hidden pt-[96px]"
         >
-          <HeroOrbs />
+          <div className="neo-container grid items-center gap-[36px] lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="relative z-10">
+              <p
+                className="neo-label mb-[18px] uppercase animate-slide-up"
+                style={{ animationDelay: "80ms" }}
+              >
+                {eyebrow}
+              </p>
+              <h1 className="max-w-[620px] text-[clamp(2.5rem,5vw,4.6rem)] font-bold leading-[1.02] text-[#26313b]">
+                <span className="block animate-slide-up" style={{ animationDelay: "200ms" }}>
+                  how are you,
+                </span>
+                <span className="block animate-slide-up" style={{ animationDelay: "370ms" }}>
+                  really?
+                </span>
+              </h1>
+              <p
+                className="mt-[24px] max-w-[440px] text-[16px] font-normal leading-[1.6] text-[#6f7f8c] animate-slide-up"
+                style={{ animationDelay: "540ms" }}
+              >
+                {subtitle}
+              </p>
+            </div>
 
-          {/* Ghost emoji watermark — whispers the selected mood */}
-          {ghostEmoji && (
-            <span
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-[clamp(160px,30vw,280px)] leading-none animate-fade-in"
-              style={{ opacity: 0.045 }}
-              aria-hidden="true"
-            >
-              {ghostEmoji}
-            </span>
-          )}
-
-          <div className="relative z-10 max-w-[1440px]">
-            <p
-              className="mb-[24px] sm:mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke animate-slide-up"
-              style={{ animationDelay: "80ms" }}
-            >
-              {eyebrow}
-            </p>
-            <h1 className="text-[42px] sm:text-[58px] lg:text-[82px] font-light leading-[1.05] text-paper-white">
-              <span className="block animate-slide-up" style={{ animationDelay: "200ms" }}>
-                how are you,
-              </span>
-              <span className="block animate-slide-up" style={{ animationDelay: "370ms" }}>
-                really?
-              </span>
-            </h1>
-            <p
-              className="mt-[24px] sm:mt-[28px] max-w-[360px] text-[15px] sm:text-[16px] font-normal leading-[1.39] text-ash animate-slide-up"
-              style={{ animationDelay: "540ms" }}
-            >
-              {subtitle}
-            </p>
-          </div>
-
-          <BreathCircle />
-
-          <p
-            className="absolute bottom-[32px] right-[20px] hidden animate-fade-in text-[11px] font-normal uppercase tracking-widest text-smoke/50 sm:right-[40px] sm:block"
-            style={{ animationDelay: "900ms" }}
-          >
-            scroll to check in ↓
-          </p>
-        </section>
-      ) : (
-        /* ── Result hero — AI types back to you ── */
-        <section className="relative flex min-h-[55svh] sm:min-h-[60vh] flex-col items-start justify-end overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px] animate-fade-in">
-          <HeroOrbs />
-          <div className="relative z-10">
-            <p
-              className="mb-[24px] sm:mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke animate-slide-up"
-              style={{ animationDelay: "0ms" }}
-            >
-              here's what I noticed
-            </p>
-            <p className="max-w-[720px] text-[28px] sm:text-[34px] md:text-[39px] font-light leading-[1.2] text-paper-white">
-              <Typewriter text={result.acknowledgment} speed={13} />
-            </p>
-          </div>
-        </section>
-      )}
-
-      {/* ── White editorial ── */}
-      <section className="bg-paper-white px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[48px] sm:py-[64px] md:py-[80px]">
-        <div className="mx-auto max-w-[1440px]">
-
-          {!result && (
-            <form onSubmit={handleSubmit} className="max-w-[680px]">
-              <div className="mb-[40px] sm:mb-[48px]">
-                <p className="mb-[20px] sm:mb-[28px] text-[12px] font-normal uppercase tracking-widest text-ash">
-                  today feels like
-                </p>
-                <MoodPicker value={mood} onChange={setMood} />
+            <form onSubmit={handleSubmit} className="neo-card-warm relative z-10 p-[22px] sm:p-[32px]">
+              <div className="mb-[28px] flex items-start justify-between gap-[20px]">
+                <div>
+                  <p className="neo-label mb-[8px] uppercase">today feels like</p>
+                  <p className="text-[15px] leading-[1.6] text-[#6f7f8c]">
+                    Pick the closest signal. No grades here.
+                  </p>
+                </div>
+                <div className="neo-inset flex h-[70px] w-[70px] items-center justify-center text-[28px] font-bold text-[#6f96b8]">
+                  {selectedMood?.score || "?"}
+                </div>
               </div>
 
-              <div className="mb-[40px] sm:mb-[48px] border-b border-ash/30 pb-[40px] sm:pb-[48px]">
-                <p className="mb-[16px] text-[12px] font-normal uppercase tracking-widest text-ash">
-                  want to say more? (optional)
-                </p>
+              <MoodPicker value={mood} onChange={setMood} />
+
+              <div className="neo-inset mt-[26px] p-[18px]">
+                <label className="neo-label mb-[10px] block uppercase" htmlFor="checkin-note">
+                  want to say more? optional
+                </label>
                 <textarea
+                  id="checkin-note"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  rows={4}
-                  placeholder="what's on your mind today…"
-                  className="w-full resize-none bg-transparent text-[16px] sm:text-[18px] font-normal leading-[1.5] text-carbon outline-none placeholder:text-smoke placeholder:transition-colors focus:placeholder:text-smoke/40"
+                  rows={5}
+                  placeholder="what's on your mind today..."
+                  className="neo-focus w-full resize-none bg-transparent text-[16px] font-normal leading-[1.6] text-[#26313b] outline-none placeholder:text-[#6f7f8c]/55"
                 />
               </div>
 
-              <div className="flex flex-col gap-[20px] sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[12px] font-normal text-ash">
-                  🔒 your check-ins stay on this device and are never shared
+              <div className="mt-[24px] flex flex-col gap-[16px] sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[12px] font-normal leading-[1.5] text-[#6f7f8c]">
+                  Your check-ins stay local to this demo.
                 </p>
-                <div className="flex items-center gap-[16px]">
+                <div className="flex items-center gap-[14px]">
                   <div aria-live="polite" aria-atomic="true">
                     {error && (
-                      <p className="text-[12px] font-normal text-ash">{error}</p>
+                      <p className="text-[12px] font-normal text-[#9a5b5b]">{error}</p>
                     )}
                   </div>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="min-h-[48px] rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98] active:scale-[0.94] disabled:opacity-30"
+                    className="neo-button min-h-[48px] px-[24px] py-[13px] text-[13px] font-semibold disabled:opacity-45"
                   >
-                    {loading ? "reading…" : "check in"}
+                    {loading ? "reading..." : "check in"}
                   </button>
                 </div>
               </div>
             </form>
-          )}
+          </div>
+        </section>
+      ) : (
+        <section className="neo-section relative flex min-h-[58dvh] items-end overflow-hidden pt-[96px] animate-fade-in">
+          <div className="neo-container">
+          <div className="neo-card-warm max-w-[820px] p-[28px] sm:p-[40px]">
+            <p
+              className="neo-label mb-[20px] uppercase animate-slide-up"
+              style={{ animationDelay: "0ms" }}
+            >
+              here's what I noticed
+            </p>
+            <p className="max-w-[720px] text-[28px] sm:text-[34px] md:text-[39px] font-bold leading-[1.2] text-[#26313b]">
+              <Typewriter text={result.acknowledgment} speed={13} />
+            </p>
+          </div>
+          </div>
+        </section>
+      )}
+
+      <section className="neo-section pt-0">
+        <div className="neo-container">
 
           {result && (
-            <div className="max-w-[680px] animate-fade-up">
+            <div className="neo-card max-w-[760px] p-[28px] sm:p-[36px] animate-fade-up">
               <div className="mb-[56px] sm:mb-[64px]">
-                <p className="mb-[24px] sm:mb-[28px] text-[12px] font-normal uppercase tracking-widest text-ash">
+                <p className="neo-label mb-[20px] uppercase">
                   try this
                 </p>
-                <p className="text-[24px] sm:text-[28px] md:text-[30px] font-light leading-[1.3] text-carbon">
+                <p className="text-[24px] sm:text-[28px] md:text-[30px] font-bold leading-[1.3] text-[#26313b]">
                   {result.tip}
                 </p>
               </div>
@@ -291,15 +259,15 @@ export default function CheckIn() {
               <div className="flex flex-wrap gap-[12px]">
                 <button
                   onClick={reset}
-                  className="min-h-[48px] rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98] active:scale-[0.94]"
+                  className="neo-button min-h-[48px] px-[24px] py-[13px] text-[13px] font-semibold"
                 >
                   check in again
                 </button>
                 <a
                   href="/dashboard"
-                  className="flex min-h-[48px] items-center rounded-[75px] border border-ash/40 px-[28px] py-[14px] text-[12px] font-normal text-ash transition-colors hover:border-carbon hover:text-carbon"
+                  className="neo-button-secondary flex min-h-[48px] items-center px-[24px] py-[13px] text-[13px] font-semibold"
                 >
-                  see my trends →
+                  see my trends
                 </a>
               </div>
             </div>

@@ -36,10 +36,10 @@ export default function Nav() {
     return (
       <Link
         to={to}
-        className={`text-[12px] font-normal uppercase tracking-widest transition-colors ${
-          scrolled
-            ? active ? "text-carbon" : "text-ash hover:text-carbon"
-            : active ? "text-paper-white" : "text-smoke hover:text-paper-white"
+        className={`rounded-[14px] px-[14px] py-[9px] text-[12px] font-medium uppercase tracking-[0.04em] transition-all duration-200 ${
+          active
+            ? "bg-[#d9ebfa] text-[#26313b] shadow-[inset_-4px_-4px_10px_rgba(255,255,255,0.85),inset_4px_4px_10px_rgba(145,162,176,0.2)]"
+            : "text-[#6f7f8c] hover:text-[#26313b]"
         }`}
       >
         {label}
@@ -52,33 +52,30 @@ export default function Nav() {
       {/* ── Desktop / Scrolled nav bar ── */}
       <nav
         className={`fixed top-0 z-30 w-full transition-all duration-300 ${
-          scrolled ? "bg-paper-white border-b border-ash/20" : "bg-transparent"
+          scrolled ? "bg-[#edf3f7]/85 backdrop-blur-xl" : "bg-transparent"
         }`}
       >
         <div className="flex h-[68px] items-center justify-between px-[20px] md:px-[40px] lg:px-[80px]">
           <Link
             to="/"
-            className={`text-[13px] font-normal tracking-widest transition-colors ${
-              scrolled ? "text-carbon" : "text-paper-white"
-            }`}
+            className="rounded-[14px] px-[14px] py-[9px] text-[13px] font-bold tracking-[0.04em] text-[#26313b] shadow-[-5px_-5px_14px_rgba(255,255,255,0.78),5px_5px_14px_rgba(145,162,176,0.16)]"
           >
             POCKETPAL
           </Link>
 
           {/* Desktop links */}
-          <div className="hidden items-center gap-[28px] md:flex">
+          <div className="hidden items-center gap-[24px] md:flex">
             {desktopLink("/", "check in")}
             {desktopLink("/dashboard", "trends")}
             {desktopLink("/insights", "insights")}
-            <span className={`${scrolled ? "text-ash/30" : "text-smoke/40"}`}>|</span>
             <button
               onClick={() => setLargeText((v) => !v)}
               aria-label="Toggle large text"
               aria-pressed={largeText}
-              className={`text-[11px] font-normal transition-colors ${
+              className={`rounded-[14px] px-[12px] py-[9px] text-[11px] font-medium transition-all ${
                 largeText
-                  ? scrolled ? "text-carbon font-semibold" : "text-paper-white font-semibold"
-                  : scrolled ? "text-ash hover:text-carbon" : "text-smoke hover:text-paper-white"
+                  ? "bg-[#f5e0e8] text-[#26313b] shadow-[inset_-4px_-4px_10px_rgba(255,255,255,0.85),inset_4px_4px_10px_rgba(145,162,176,0.18)]"
+                  : "text-[#6f7f8c] hover:text-[#26313b]"
               }`}
             >
               A+
@@ -90,9 +87,7 @@ export default function Nav() {
             onClick={() => setMenuOpen((v) => !v)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
-            className={`flex h-[44px] w-[44px] flex-col items-center justify-center gap-[5px] md:hidden ${
-              scrolled ? "text-carbon" : "text-paper-white"
-            }`}
+            className="flex h-[44px] w-[44px] flex-col items-center justify-center gap-[5px] rounded-[14px] text-[#26313b] shadow-[-5px_-5px_14px_rgba(255,255,255,0.78),5px_5px_14px_rgba(145,162,176,0.16)] md:hidden"
           >
             <span
               className={`block h-[1.5px] w-[22px] bg-current transition-all duration-200 ${
@@ -115,18 +110,18 @@ export default function Nav() {
 
       {/* ── Mobile full-screen menu ── */}
       <div
-        className={`fixed inset-0 z-40 flex flex-col bg-[#0d0c14] transition-all duration-300 md:hidden ${
+        className={`fixed inset-0 z-40 flex flex-col bg-[#edf3f7] transition-all duration-300 md:hidden ${
           menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="flex h-[68px] items-center justify-between px-[20px]">
-          <span className="text-[13px] font-normal tracking-widest text-paper-white">
+          <span className="text-[13px] font-bold tracking-[0.04em] text-[#26313b]">
             POCKETPAL
           </span>
           <button
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"
-            className="flex h-[44px] w-[44px] items-center justify-center text-paper-white"
+            className="flex h-[44px] w-[44px] items-center justify-center rounded-[14px] text-[#26313b] shadow-[-5px_-5px_14px_rgba(255,255,255,0.78),5px_5px_14px_rgba(145,162,176,0.16)]"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" strokeWidth="1.5"/>
@@ -134,7 +129,7 @@ export default function Nav() {
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col justify-center px-[28px] pb-[48px]">
+        <div className="flex flex-1 flex-col justify-center overflow-y-auto px-[28px] pb-[48px]">
           {[
             { to: "/", label: "check in" },
             { to: "/dashboard", label: "trends" },
@@ -143,8 +138,10 @@ export default function Nav() {
             <Link
               key={to}
               to={to}
-              className={`border-b border-paper-white/10 py-[24px] text-[36px] font-light leading-none transition-colors ${
-                pathname === to ? "text-paper-white" : "text-smoke hover:text-paper-white"
+              className={`mb-[14px] rounded-[14px] px-[22px] py-[18px] text-[26px] font-bold leading-none transition-all ${
+                pathname === to
+                  ? "bg-[#d9ebfa] text-[#26313b] shadow-[inset_-5px_-5px_12px_rgba(255,255,255,0.86),inset_5px_5px_12px_rgba(145,162,176,0.22)]"
+                  : "text-[#6f7f8c] shadow-[-5px_-5px_14px_rgba(255,255,255,0.78),5px_5px_14px_rgba(145,162,176,0.16)]"
               }`}
             >
               {label}
@@ -153,11 +150,11 @@ export default function Nav() {
 
           <button
             onClick={() => setLargeText((v) => !v)}
-            className={`mt-[40px] self-start text-[13px] font-normal tracking-widest transition-colors ${
-              largeText ? "text-paper-white" : "text-smoke"
+            className={`mt-[20px] self-start rounded-[14px] px-[16px] py-[12px] text-[13px] font-medium tracking-[0.04em] transition-colors ${
+              largeText ? "bg-[#f5e0e8] text-[#26313b]" : "text-[#6f7f8c]"
             }`}
           >
-            {largeText ? "A+ ON" : "A+ OFF"} — text size
+            {largeText ? "A+ ON" : "A+ OFF"} text size
           </button>
         </div>
       </div>

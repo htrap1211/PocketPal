@@ -162,4 +162,60 @@ export async function generateMonthlyReflection({ checkins, averageMood, longest
   }
 }
 
+const CHAPTER_SYSTEM_PROMPT = `You are PocketPal writing a monthly chapter for a student's wellness journal. Based on their check-in data, write a warm, specific monthly chapter. Be story-like and reflective, not clinical. Under 150 words for chapterNarrative. Never diagnose or speculate beyond what the student explicitly shared. Never provide medical advice.
+
+Return ONLY valid JSON, no markdown:
+{"title": "...", "mainChallenge": "...", "supportingThemes": ["...", "..."], "turningPoint": "...", "growthSummary": "...", "chapterNarrative": "..."}`;
+
+const MOVIE_SYSTEM_PROMPT = `You are PocketPal writing a cinematic monthly movie recap for a teen's wellness journey. Make it warm, playful, and specific to their data. The "starring" field should be a short phrase like "You — navigating another month". The supportingCast should reference themes that came up (school, friends, soccer, etc). Never diagnose. Never speculate beyond what was explicitly shared.
+
+Return ONLY valid JSON, no markdown:
+{"title": "...", "starring": "...", "supportingCast": ["...", "..."], "mainConflict": "...", "growthArc": "...", "favoriteScene": "...", "ending": "..."}`;
+
+function buildMonthSummaryMessage({ checkins, averageMood, themes, longestStreak, dateRange, topPositiveFactor }) {
+  return `Student's month: ${checkins} check-ins from ${dateRange}, average mood ${averageMood}/5, longest streak ${longestStreak} days, topics that came up: ${themes?.join(", ") || "varied"}, top positive activity: ${topPositiveFactor || "not identified"}.`;
+}
+
+// Monthly chapter — story-like narrative from check-in data.
+export async function generateChapter({ checkins, averageMood, themes, longestStreak, dateRange, topPositiveFactor }) {
+  if (!process.env.ASI1_API_KEY) return null;
+
+  const userMsg = buildMonthSummaryMessage({ checkins, averageMood, themes, longestStreak, dateRange, topPositiveFactor });
+
+  try {
+    const parsed = await callASI1(
+      [
+        { role: "system", content: CHAPTER_SYSTEM_PROMPT },
+        { role: "user", content: userMsg },
+      ],
+      500, 0.65,
+    );
+    if (parsed && typeof parsed.title === "string") return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Cinematic movie recap — playful, warm, story-like.
+export async function generateMovieRecap({ checkins, averageMood, themes, longestStreak, dateRange, topPositiveFactor }) {
+  if (!process.env.ASI1_API_KEY) return null;
+
+  const userMsg = buildMonthSummaryMessage({ checkins, averageMood, themes, longestStreak, dateRange, topPositiveFactor });
+
+  try {
+    const parsed = await callASI1(
+      [
+        { role: "system", content: MOVIE_SYSTEM_PROMPT },
+        { role: "user", content: userMsg },
+      ],
+      500, 0.7,
+    );
+    if (parsed && typeof parsed.title === "string") return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export { SENTIMENTS };

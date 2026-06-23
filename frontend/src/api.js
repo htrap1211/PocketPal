@@ -43,3 +43,58 @@ export async function fetchMonthlyReflection() {
   if (!res.ok) return null;
   return res.json();
 }
+
+export async function fetchChapter() {
+  const res = await fetch("/api/chapter");
+  if (!res.ok) return { chapter: null };
+  return res.json();
+}
+
+export async function fetchCoreMemories() {
+  const res = await fetch("/api/core-memories");
+  if (!res.ok) return { memories: [] };
+  return res.json();
+}
+
+export async function submitFutureMe({ message, unlockDays }) {
+  const res = await fetch("/api/future-me", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, unlockDays }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "Could not save your message.");
+  }
+  return res.json();
+}
+
+export async function fetchFutureMe() {
+  const res = await fetch("/api/future-me");
+  if (!res.ok) return { messages: [] };
+  return res.json();
+}
+
+export async function fetchMovieRecap() {
+  const res = await fetch("/api/movie-recap");
+  if (!res.ok) return { recap: null };
+  return res.json();
+}
+
+export async function fetchWrapped() {
+  const res = await fetch("/api/wrapped");
+  if (!res.ok) return { wrapped: null };
+  return res.json();
+}
+
+export async function generateDemo() {
+  const res = await fetch("/api/demo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "Could not generate demo data.");
+  }
+  return res.json();
+}

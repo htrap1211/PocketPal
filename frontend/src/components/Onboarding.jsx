@@ -24,17 +24,17 @@ export default function Onboarding({ onDone }) {
   const s = SLIDES[slide];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0d0c14]">
-      <div className="animate-fade-up w-full max-w-[640px] px-[24px] sm:px-[40px]">
-        <p className="mb-[36px] sm:mb-[48px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+    <div className="neo-app-bg fixed inset-0 z-50 flex items-center justify-center px-[20px]">
+      <div className="neo-card-warm animate-fade-up w-full max-w-[680px] p-[28px] sm:p-[42px]">
+        <p className="neo-label mb-[28px] uppercase sm:mb-[36px]">
           {s.index} / 03
         </p>
 
-        <h2 className="whitespace-pre-line text-[40px] sm:text-[54px] md:text-[72px] font-light leading-[1.1] text-paper-white">
+        <h2 className="whitespace-pre-line text-[40px] sm:text-[54px] md:text-[68px] font-bold leading-[1.05] text-[#26313b]">
           {s.heading}
         </h2>
 
-        <p className="mt-[28px] sm:mt-[40px] max-w-[400px] text-[16px] sm:text-[18px] font-normal leading-[1.5] text-ash">
+        <p className="mt-[24px] max-w-[460px] text-[16px] sm:text-[18px] font-normal leading-[1.6] text-[#6f7f8c]">
           {s.body}
         </p>
 
@@ -45,8 +45,8 @@ export default function Onboarding({ onDone }) {
                 key={i}
                 onClick={() => setSlide(i)}
                 aria-label={`Go to slide ${i + 1}`}
-                className={`h-[2px] transition-all duration-300 ${
-                  i === slide ? "w-[32px] bg-paper-white" : "w-[12px] bg-smoke"
+                className={`h-[8px] rounded-[14px] transition-all duration-300 ${
+                  i === slide ? "w-[34px] bg-[#6f96b8]" : "w-[14px] bg-[#d5e1e8]"
                 }`}
               />
             ))}
@@ -61,9 +61,9 @@ export default function Onboarding({ onDone }) {
                 setSlide((s) => s + 1);
               }
             }}
-            className="rounded-[75px] bg-paper-white px-[24px] sm:px-[28px] py-[13px] text-[12px] font-normal text-[#0d0c14] transition-opacity hover:opacity-80 min-h-[48px]"
+            className="neo-button min-h-[48px] px-[24px] py-[13px] text-[12px] font-semibold sm:px-[28px]"
           >
-            {last ? "get started" : "next →"}
+            {last ? "get started" : "next"}
           </button>
         </div>
       </div>
