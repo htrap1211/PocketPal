@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import HeroOrbs from "../components/HeroOrbs.jsx";
 import { fetchChapter } from "../api.js";
 import { useInView } from "../utils/useInView.js";
 
@@ -32,7 +31,7 @@ function Typewriter({ text, speed = 16 }) {
       {displayed}
       {cursorOn && (
         <span
-          className="ml-[3px] inline-block w-[2px] bg-paper-white animate-cursor-blink align-middle"
+          className="ml-[3px] inline-block w-[2px] bg-[#26313b] animate-cursor-blink align-middle"
           style={{ height: "0.85em" }}
           aria-hidden="true"
         />
@@ -44,22 +43,21 @@ function Typewriter({ text, speed = 16 }) {
 function Skeleton() {
   return (
     <>
-      {/* Dark hero skeleton */}
-      <section className="relative flex min-h-[75svh] flex-col items-start justify-end overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px]">
-        <HeroOrbs />
-        <div className="relative z-10 w-full max-w-[640px]">
-          <div className="mb-[24px] h-[11px] w-[160px] rounded-sm bg-paper-white/10 animate-shimmer" />
-          <div className="mb-[12px] h-[60px] w-[80%] rounded-sm bg-paper-white/10 animate-shimmer" />
-          <div className="h-[60px] w-[60%] rounded-sm bg-paper-white/10 animate-shimmer" />
+      <section className="neo-section relative flex min-h-[64dvh] items-end overflow-hidden pt-[96px]">
+        <div className="neo-container w-full">
+          <div className="neo-card-warm max-w-[720px] p-[28px] sm:p-[40px]">
+            <div className="mb-[24px] h-[11px] w-[160px] rounded-[14px] bg-[#6f7f8c]/12 animate-shimmer" />
+            <div className="mb-[12px] h-[60px] w-[80%] rounded-[14px] bg-[#6f7f8c]/12 animate-shimmer" />
+            <div className="h-[60px] w-[60%] rounded-[14px] bg-[#6f7f8c]/12 animate-shimmer" />
+          </div>
         </div>
       </section>
-      {/* White section skeleton */}
-      <section className="bg-paper-white px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[48px] sm:py-[64px] md:py-[80px]">
-        <div className="mx-auto max-w-[1440px] space-y-[48px]">
+      <section className="neo-section pt-0">
+        <div className="neo-container space-y-[16px]">
           {[200, 160, 260, 180].map((w, i) => (
-            <div key={i}>
-              <div className="mb-[12px] h-[11px] w-[100px] rounded-sm bg-smoke/20 animate-pulse" />
-              <div className="h-[32px] rounded-sm bg-smoke/10 animate-pulse" style={{ width: `${w}px` }} />
+            <div key={i} className="neo-card max-w-[860px] p-[24px]">
+              <div className="mb-[12px] h-[11px] w-[100px] rounded-[14px] bg-[#6f7f8c]/12 animate-pulse" />
+              <div className="h-[32px] rounded-[14px] bg-[#6f7f8c]/10 animate-pulse" style={{ width: `${w}px` }} />
             </div>
           ))}
         </div>
@@ -70,7 +68,7 @@ function Skeleton() {
 
 function SectionLabel({ children }) {
   return (
-    <p className="mb-[12px] text-[11px] font-normal uppercase tracking-widest text-ash">
+    <p className="neo-label mb-[12px] uppercase">
       {children}
     </p>
   );
@@ -81,7 +79,7 @@ function ContentBlock({ label, children, index }) {
   return (
     <div
       ref={ref}
-      className={`border-t border-ash/15 py-[32px] sm:py-[40px] transition-all duration-500 ease-out ${
+      className={`neo-card mb-[16px] p-[24px] transition-all duration-500 ease-out sm:p-[30px] ${
         inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[10px]"
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}
@@ -111,29 +109,30 @@ export default function Chapters() {
   if (!data?.chapter) {
     return (
       <>
-        <section className="relative flex min-h-[75svh] flex-col items-start justify-end overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px]">
-          <HeroOrbs />
-          <div className="relative z-10">
-            <p className="mb-[24px] text-[11px] font-normal uppercase tracking-widest text-smoke animate-slide-up" style={{ animationDelay: "80ms" }}>
+        <section className="neo-section relative flex min-h-[64dvh] items-end overflow-hidden pt-[96px]">
+          <div className="neo-container">
+            <p className="neo-label mb-[18px] uppercase animate-slide-up" style={{ animationDelay: "80ms" }}>
               chapter {monthLabel} {yearLabel}
             </p>
-            <h1 className="text-[42px] sm:text-[58px] lg:text-[72px] font-light leading-[1.05] text-paper-white">
+            <h1 className="text-[clamp(2.5rem,5vw,4.6rem)] font-bold leading-[1.04] text-[#26313b]">
               <span className="block animate-slide-up" style={{ animationDelay: "200ms" }}>your chapter</span>
               <span className="block animate-slide-up" style={{ animationDelay: "370ms" }}>is unfolding</span>
             </h1>
           </div>
         </section>
-        <section className="bg-paper-white px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[48px] sm:py-[64px] md:py-[80px]">
-          <div className="mx-auto max-w-[1440px]">
-            <p className="max-w-[520px] text-[18px] sm:text-[20px] font-light leading-[1.5] text-ash">
+        <section className="neo-section pt-0">
+          <div className="neo-container">
+            <div className="neo-card max-w-[560px] p-[28px]">
+            <p className="max-w-[520px] text-[18px] sm:text-[20px] font-normal leading-[1.6] text-[#6f7f8c]">
               Check in a few more times this month to unlock your chapter.
             </p>
             <a
               href="/"
-              className="mt-[40px] inline-flex min-h-[48px] items-center rounded-[75px] bg-[#1e1b2e] px-[28px] py-[14px] text-[12px] font-normal text-paper-white transition-all duration-150 hover:opacity-75 hover:scale-[0.98]"
+              className="neo-button mt-[28px] inline-flex min-h-[48px] items-center px-[24px] py-[13px] text-[13px] font-semibold"
             >
               check in now
             </a>
+            </div>
           </div>
         </section>
       </>
@@ -144,29 +143,26 @@ export default function Chapters() {
 
   return (
     <>
-      {/* ── Dark hero ── */}
-      <section className="relative flex min-h-[75svh] flex-col items-start justify-end overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] pb-[56px] sm:pb-[80px] pt-[68px]">
-        <HeroOrbs />
-        <div className="relative z-10 max-w-[1440px]">
+      <section className="neo-section relative flex min-h-[64dvh] items-end overflow-hidden pt-[96px]">
+        <div className="neo-container">
           <p
-            className="mb-[24px] sm:mb-[28px] text-[11px] font-normal uppercase tracking-widest text-smoke animate-slide-up"
+            className="neo-label mb-[18px] uppercase animate-slide-up"
             style={{ animationDelay: "80ms" }}
           >
             chapter {monthLabel} {yearLabel}
           </p>
-          <h1 className="text-[42px] sm:text-[58px] lg:text-[82px] font-light leading-[1.05] text-paper-white animate-slide-up" style={{ animationDelay: "200ms" }}>
+          <h1 className="max-w-[860px] text-[clamp(2.5rem,5vw,4.6rem)] font-bold leading-[1.04] text-[#26313b] animate-slide-up" style={{ animationDelay: "200ms" }}>
             {chapter.title}
           </h1>
         </div>
       </section>
 
-      {/* ── White editorial content ── */}
-      <section className="bg-paper-white px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[48px] sm:py-[64px] md:py-[80px]">
-        <div className="mx-auto max-w-[1440px]">
+      <section className="neo-section pt-0">
+        <div className="neo-container">
           <div className="max-w-[860px]">
 
             <ContentBlock label="Main Challenge" index={0}>
-              <p className="text-[24px] sm:text-[28px] md:text-[32px] font-light leading-[1.3] text-carbon">
+              <p className="text-[24px] sm:text-[28px] md:text-[32px] font-bold leading-[1.3] text-[#26313b]">
                 {chapter.mainChallenge}
               </p>
             </ContentBlock>
@@ -177,7 +173,7 @@ export default function Chapters() {
                   {chapter.supportingThemes.map((theme) => (
                     <span
                       key={theme}
-                      className="inline-flex items-center rounded-[75px] border border-ash/40 px-[16px] py-[8px] text-[13px] font-normal text-ash capitalize"
+                      className="inline-flex items-center rounded-[14px] bg-[#edf3f7] px-[16px] py-[9px] text-[13px] font-semibold text-[#6f7f8c] shadow-[-5px_-5px_14px_rgba(255,255,255,0.78),5px_5px_14px_rgba(145,162,176,0.16)] capitalize"
                     >
                       {theme}
                     </span>
@@ -187,13 +183,13 @@ export default function Chapters() {
             )}
 
             <ContentBlock label="Turning Point" index={2}>
-              <p className="text-[18px] sm:text-[20px] font-light leading-[1.5] text-carbon">
+              <p className="text-[18px] sm:text-[20px] font-normal leading-[1.6] text-[#26313b]">
                 {chapter.turningPoint}
               </p>
             </ContentBlock>
 
             <ContentBlock label="Growth" index={3}>
-              <p className="text-[18px] sm:text-[20px] font-light leading-[1.5] text-carbon">
+              <p className="text-[18px] sm:text-[20px] font-normal leading-[1.6] text-[#26313b]">
                 {chapter.growthSummary}
               </p>
             </ContentBlock>
@@ -201,16 +197,16 @@ export default function Chapters() {
         </div>
       </section>
 
-      {/* ── Dark narrative section ── */}
-      <section className="relative overflow-hidden bg-[#0d0c14] px-[20px] sm:px-[32px] md:px-[48px] lg:px-[80px] py-[64px] sm:py-[80px] md:py-[100px]">
-        <HeroOrbs />
-        <div className="relative z-10 mx-auto max-w-[1440px]">
-          <p className="mb-[32px] sm:mb-[40px] text-[11px] font-normal uppercase tracking-widest text-smoke">
+      <section className="neo-section pt-0">
+        <div className="neo-container">
+          <div className="neo-card-warm max-w-[860px] p-[28px] sm:p-[40px]">
+          <p className="neo-label mb-[24px] uppercase">
             your chapter
           </p>
-          <p className="max-w-[760px] text-[28px] sm:text-[32px] md:text-[34px] font-light leading-[1.45] text-paper-white">
+          <p className="max-w-[760px] text-[28px] sm:text-[32px] md:text-[34px] font-bold leading-[1.42] text-[#26313b]">
             <Typewriter text={chapter.chapterNarrative} speed={18} />
           </p>
+          </div>
         </div>
       </section>
     </>
